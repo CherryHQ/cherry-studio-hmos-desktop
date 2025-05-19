@@ -328,7 +328,7 @@ const MinappPopupContainer: React.FC = () => {
             </Tooltip>
           )}
           <Tooltip title={t('minapp.popup.close')} mouseEnterDelay={0.8} placement="bottom">
-            <Button onClick={() => handlePopupClose(appInfo.id)}>
+            <Button style={{ marginRight: '125px' }} onClick={() => handlePopupClose(appInfo.id)}>
               <CloseOutlined />
             </Button>
           </Tooltip>
