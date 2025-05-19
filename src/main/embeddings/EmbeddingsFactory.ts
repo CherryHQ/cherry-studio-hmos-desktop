@@ -4,19 +4,19 @@ import { AzureOpenAiEmbeddings } from '@cherrystudio/embedjs-openai/src/azure-op
 import { getInstanceName } from '@main/utils'
 import { KnowledgeBaseParams } from '@types'
 
-import VoyageEmbeddings from './VoyageEmbeddings'
+// import VoyageEmbeddings from './VoyageEmbeddings'
 
 export default class EmbeddingsFactory {
   static create({ model, apiKey, apiVersion, baseURL, dimensions }: KnowledgeBaseParams): BaseEmbeddings {
     const batchSize = 10
-    if (model.includes('voyage')) {
-      return new VoyageEmbeddings({
-        modelName: model,
-        apiKey,
-        outputDimension: dimensions,
-        batchSize: 8
-      })
-    }
+    // if (model.includes('voyage')) {
+    //   return new VoyageEmbeddings({
+    //     modelName: model,
+    //     apiKey,
+    //     outputDimension: dimensions,
+    //     batchSize: 8
+    //   })
+    // }
     if (apiVersion !== undefined) {
       return new AzureOpenAiEmbeddings({
         azureOpenAIApiKey: apiKey,

@@ -1,6 +1,6 @@
 import { BaseLoader } from '@cherrystudio/embedjs-interfaces'
 import { cleanString } from '@cherrystudio/embedjs-utils'
-import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
+// import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import md5 from 'md5'
 import { OfficeParserConfig, parseOfficeAsync } from 'officeparser'
 
@@ -51,21 +51,21 @@ export class OdLoader<OdType> extends BaseLoader<{ type: string }> {
     if (!this.extractedText) {
       await this.extractTextFromOdt()
     }
-    const chunker = new RecursiveCharacterTextSplitter({
-      chunkSize: this.chunkSize,
-      chunkOverlap: this.chunkOverlap
-    })
+    // const chunker = new RecursiveCharacterTextSplitter({
+    //   chunkSize: this.chunkSize,
+    //   chunkOverlap: this.chunkOverlap
+    // })
 
-    const chunks = await chunker.splitText(cleanString(this.extractedText))
+    // const chunks = await chunker.splitText(cleanString(this.extractedText))
 
-    for (const chunk of chunks) {
-      yield {
-        pageContent: chunk,
-        metadata: {
-          type: this.odType as string,
-          source: this.filePath
-        }
-      }
-    }
+    // for (const chunk of chunks) {
+    //   yield {
+    //     pageContent: chunk,
+    //     metadata: {
+    //       type: this.odType as string,
+    //       source: this.filePath
+    //     }
+    //   }
+    // }
   }
 }

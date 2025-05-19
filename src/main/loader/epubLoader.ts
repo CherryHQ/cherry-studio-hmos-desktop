@@ -1,6 +1,6 @@
 import { BaseLoader } from '@cherrystudio/embedjs-interfaces'
 import { cleanString } from '@cherrystudio/embedjs-utils'
-import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
+// import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { getTempDir } from '@main/utils/file'
 import Logger from 'electron-log'
 import EPub from 'epub'
@@ -223,26 +223,26 @@ export class EpubLoader extends BaseLoader<Record<string, string | number | bool
 
     Logger.info('[EpubLoader] 书名：', this.metadata?.title || '未知书名', ' 文本大小：', this.extractedText.length)
 
-    // 创建文本分块器
-    const chunker = new RecursiveCharacterTextSplitter({
-      chunkSize: this.chunkSize,
-      chunkOverlap: this.chunkOverlap
-    })
+    // // 创建文本分块器
+    // const chunker = new RecursiveCharacterTextSplitter({
+    //   chunkSize: this.chunkSize,
+    //   chunkOverlap: this.chunkOverlap
+    // })
 
-    // 清理并分割文本
-    const chunks = await chunker.splitText(cleanString(this.extractedText))
+    // // 清理并分割文本
+    // const chunks = await chunker.splitText(cleanString(this.extractedText))
 
-    // 为每个文本块添加元数据
-    for (const chunk of chunks) {
-      yield {
-        pageContent: chunk,
-        metadata: {
-          source: this.filePath,
-          title: this.metadata?.title || '',
-          creator: this.metadata?.creator || '',
-          language: this.metadata?.language || ''
-        }
-      }
-    }
+    // // 为每个文本块添加元数据
+    // for (const chunk of chunks) {
+    //   yield {
+    //     pageContent: chunk,
+    //     metadata: {
+    //       source: this.filePath,
+    //       title: this.metadata?.title || '',
+    //       creator: this.metadata?.creator || '',
+    //       language: this.metadata?.language || ''
+    //     }
+    //   }
+    // }
   }
 }
