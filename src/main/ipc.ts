@@ -18,8 +18,8 @@ import { ExportService } from './services/ExportService'
 import FileService from './services/FileService'
 import FileStorage from './services/FileStorage'
 import { GeminiService } from './services/GeminiService'
-import KnowledgeService from './services/KnowledgeService'
-import { getMcpInstance } from './services/MCPService'
+// import KnowledgeService from './services/KnowledgeService'
+// import { getMcpInstance } from './services/MCPService'
 import * as NutstoreService from './services/NutstoreService'
 import ObsidianVaultService from './services/ObsidianVaultService'
 import { ProxyConfig, proxyManager } from './services/ProxyManager'
@@ -265,13 +265,13 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   })
 
   // knowledge base
-  ipcMain.handle(IpcChannel.KnowledgeBase_Create, KnowledgeService.create)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Reset, KnowledgeService.reset)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Delete, KnowledgeService.delete)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Add, KnowledgeService.add)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Remove, KnowledgeService.remove)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Search, KnowledgeService.search)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Rerank, KnowledgeService.rerank)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Create, KnowledgeService.create)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Reset, KnowledgeService.reset)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Delete, KnowledgeService.delete)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Add, KnowledgeService.add)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Remove, KnowledgeService.remove)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Search, KnowledgeService.search)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Rerank, KnowledgeService.rerank)
 
   // window
   ipcMain.handle(IpcChannel.Windows_SetMinimumSize, (_, width: number, height: number) => {
@@ -309,16 +309,16 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   )
 
   // Register MCP handlers
-  ipcMain.handle(IpcChannel.Mcp_RemoveServer, (event, server) => getMcpInstance().removeServer(event, server))
-  ipcMain.handle(IpcChannel.Mcp_RestartServer, (event, server) => getMcpInstance().restartServer(event, server))
-  ipcMain.handle(IpcChannel.Mcp_StopServer, (event, server) => getMcpInstance().stopServer(event, server))
-  ipcMain.handle(IpcChannel.Mcp_ListTools, (event, server) => getMcpInstance().listTools(event, server))
-  ipcMain.handle(IpcChannel.Mcp_CallTool, (event, params) => getMcpInstance().callTool(event, params))
-  ipcMain.handle(IpcChannel.Mcp_ListPrompts, (event, server) => getMcpInstance().listPrompts(event, server))
-  ipcMain.handle(IpcChannel.Mcp_GetPrompt, (event, params) => getMcpInstance().getPrompt(event, params))
-  ipcMain.handle(IpcChannel.Mcp_ListResources, (event, server) => getMcpInstance().listResources(event, server))
-  ipcMain.handle(IpcChannel.Mcp_GetResource, (event, params) => getMcpInstance().getResource(event, params))
-  ipcMain.handle(IpcChannel.Mcp_GetInstallInfo, () => getMcpInstance().getInstallInfo())
+  // ipcMain.handle(IpcChannel.Mcp_RemoveServer, (event, server) => getMcpInstance().removeServer(event, server))
+  // ipcMain.handle(IpcChannel.Mcp_RestartServer, (event, server) => getMcpInstance().restartServer(event, server))
+  // ipcMain.handle(IpcChannel.Mcp_StopServer, (event, server) => getMcpInstance().stopServer(event, server))
+  // ipcMain.handle(IpcChannel.Mcp_ListTools, (event, server) => getMcpInstance().listTools(event, server))
+  // ipcMain.handle(IpcChannel.Mcp_CallTool, (event, params) => getMcpInstance().callTool(event, params))
+  // ipcMain.handle(IpcChannel.Mcp_ListPrompts, (event, server) => getMcpInstance().listPrompts(event, server))
+  // ipcMain.handle(IpcChannel.Mcp_GetPrompt, (event, params) => getMcpInstance().getPrompt(event, params))
+  // ipcMain.handle(IpcChannel.Mcp_ListResources, (event, server) => getMcpInstance().listResources(event, server))
+  // ipcMain.handle(IpcChannel.Mcp_GetResource, (event, params) => getMcpInstance().getResource(event, params))
+  // ipcMain.handle(IpcChannel.Mcp_GetInstallInfo, () => getMcpInstance().getInstallInfo())
 
   ipcMain.handle(IpcChannel.App_IsBinaryExist, (_, name: string) => isBinaryExists(name))
   ipcMain.handle(IpcChannel.App_GetBinaryPath, (_, name: string) => getBinaryPath(name))
