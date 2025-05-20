@@ -8,7 +8,7 @@ export const FONT_FAMILY =
 
 export const platform = window.electron?.process?.platform
 export const isMac = platform === 'darwin'
-export const isWindows = platform === 'win32' || platform === 'win64'
+export const isWindows = platform === 'win32' || platform === 'win64' || platform === 'ohos'
 export const isLinux = platform === 'linux'
 
 export const SILICON_CLIENT_ID = 'SFaJLLq0y6CAMoyDm81aMu'
