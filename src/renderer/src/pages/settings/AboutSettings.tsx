@@ -75,20 +75,23 @@ const AboutSettings: FC = () => {
 
   const showLicense = async () => {
     const { appPath } = await window.api.getAppInfo()
+    console.info('appPath2' + appPath)
+
     openMinapp({
       id: 'cherrystudio-license',
       name: t('settings.about.license.title'),
-      url: `file://${appPath}/resources/cherry-studio/license.html`,
+      url: `file:///data/storage/el1/bundle/electron/resources/resfile/resources/resources/license.html`,
       logo: AppLogo
     })
   }
-
+  //修改。路径
   const showReleases = async () => {
     const { appPath } = await window.api.getAppInfo()
+    console.info('appPath1' + appPath)
     openMinapp({
       id: 'cherrystudio-releases',
       name: t('settings.about.releases.title'),
-      url: `file://${appPath}/resources/cherry-studio/releases.html?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`,
+      url: `file:///data/storage/el1/bundle/electron/resources/resfile/resources/resources/cherry-studio/releases.html?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`,
       logo: AppLogo
     })
   }
