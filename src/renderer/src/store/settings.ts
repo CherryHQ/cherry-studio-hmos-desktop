@@ -192,8 +192,8 @@ export const initialState: SettingsState = {
   customCss: '',
   topicNamingPrompt: '',
   sidebarIcons: {
-    visible: DEFAULT_SIDEBAR_ICONS.filter((icon) => icon !== 'knowledge'),
-    disabled: ['knowledge']
+    visible: DEFAULT_SIDEBAR_ICONS,
+    disabled: []
   },
   narrowMode: false,
   enableQuickAssistant: false,
