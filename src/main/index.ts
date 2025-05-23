@@ -57,9 +57,9 @@ if (!app.requestSingleInstanceLock()) {
     if (isLaunchToTray) {
       app.dock?.hide()
     }
-    new TrayService()
-    // console.log('创建托盘完毕')
+
     const mainWindow = windowService.createMainWindow()
+    new TrayService()
 
     app.on('activate', function () {
       const mainWindow = windowService.getMainWindow()

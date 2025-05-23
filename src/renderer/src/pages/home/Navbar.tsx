@@ -84,7 +84,7 @@ const HeaderNavbar: FC<Props> = ({ activeAssistant }) => {
           )}
           <SelectModelButton assistant={assistant} />
         </HStack>
-        <HStack alignItems="center" gap={8}>
+        <HStack alignItems="center" style={{ marginRight:'125px' }} gap={8}>
           <UpdateAppButton />
           <Tooltip title={t('chat.assistant.search.placeholder')} mouseEnterDelay={0.8}>
             <NarrowIcon onClick={() => SearchPopup.show()}>

@@ -5,7 +5,7 @@ import path from 'node:path'
 import { app } from 'electron'
 
 export function getResourcePath() {
-  return '/data/storage/el1/bundle/electron/resources/resfile/resources/resources'
+  return path.join(app.getAppPath(), 'resources')
 }
 
 export function getDataPath() {

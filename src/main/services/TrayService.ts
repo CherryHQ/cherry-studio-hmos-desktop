@@ -39,8 +39,6 @@ export class TrayService {
       const image = nativeImage.createFromPath(iconPath)
       const resizedImage = image.resize({ width: 16, height: 16 })
       tray.setImage(resizedImage)
-    } else {
-      tray.setImage(iconPath)
     }
 
     this.tray = tray
@@ -58,18 +56,21 @@ export class TrayService {
       enableQuickAssistant && {
         label: trayLocale.show_mini_window,
         click: () => windowService.showMiniWindow()
-      }
-      // { type: 'separator' }, //鸿蒙不生效
+      },
       // {
-      //   label: trayLocale.quit, //鸿蒙自带托盘退出
-      //   click: () => this.quit()
-      // }
+      //   label: trayLocale.show_mini_window,
+      //   click: () => windowService.showMainWindow()
+      // },
+      { type: 'separator' },
+      {
+        label: trayLocale.quit,
+        click: () => this.quit()
+      }
     ].filter(Boolean) as MenuItemConstructorOptions[]
 
     const contextMenu = Menu.buildFromTemplate(template)
 
-    if (process.platform === 'linux' || process.platform === 'ohos') {
-      // 鸿蒙适配
+    if (process.platform === 'linux') {
       this.tray.setContextMenu(contextMenu)
     }
 
