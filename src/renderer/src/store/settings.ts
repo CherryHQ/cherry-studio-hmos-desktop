@@ -14,7 +14,6 @@ export const DEFAULT_SIDEBAR_ICONS: SidebarIcon[] = [
   'paintings',
   'translate',
   'minapp',
-  'knowledge',
   'files'
 ]
 
@@ -81,6 +80,7 @@ export interface SettingsState {
   topicNamingPrompt: string
   // Sidebar icons
   sidebarIcons: {
+    // 隐藏knowledge图标
     visible: SidebarIcon[]
     disabled: SidebarIcon[]
   }
