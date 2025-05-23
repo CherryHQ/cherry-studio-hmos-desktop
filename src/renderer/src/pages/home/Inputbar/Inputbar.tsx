@@ -12,7 +12,6 @@ import {
 import db from '@renderer/databases'
 import { useAssistant } from '@renderer/hooks/useAssistant'
 import { useKnowledgeBases } from '@renderer/hooks/useKnowledge'
-import { useMCPServers } from '@renderer/hooks/useMCPServers'
 import { useMessageOperations, useTopicLoading } from '@renderer/hooks/useMessageOperations'
 import { modelGenerating, useRuntime } from '@renderer/hooks/useRuntime'
 import { useMessageStyle, useSettings } from '@renderer/hooks/useSettings'
@@ -45,7 +44,6 @@ import {
   FileText,
   Globe,
   Languages,
-  LucideSquareTerminal,
   Maximize,
   MessageSquareDiff,
   Minimize,
@@ -63,9 +61,8 @@ import NarrowLayout from '../Messages/NarrowLayout'
 import AttachmentButton, { AttachmentButtonRef } from './AttachmentButton'
 import AttachmentPreview from './AttachmentPreview'
 import GenerateImageButton from './GenerateImageButton'
-import KnowledgeBaseButton, { KnowledgeBaseButtonRef } from './KnowledgeBaseButton'
+import { KnowledgeBaseButtonRef } from './KnowledgeBaseButton'
 import KnowledgeBaseInput from './KnowledgeBaseInput'
-import MCPToolsButton, { MCPToolsButtonRef } from './MCPToolsButton'
 import MentionModelsButton, { MentionModelsButtonRef } from './MentionModelsButton'
 import MentionModelsInput from './MentionModelsInput'
 import NewContextButton from './NewContextButton'
@@ -123,7 +120,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
   const currentMessageId = useRef<string>('')
   const isVision = useMemo(() => isVisionModel(model), [model])
   const supportExts = useMemo(() => [...textExts, ...documentExts, ...(isVision ? imageExts : [])], [isVision])
-  const { activedMcpServers } = useMCPServers()
+  // const { activedMcpServers } = useMCPServers()
   const { bases: knowledgeBases } = useKnowledgeBases()
 
   const quickPanel = useQuickPanel()
@@ -135,7 +132,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
   const quickPhrasesButtonRef = useRef<QuickPhrasesButtonRef>(null)
   const mentionModelsButtonRef = useRef<MentionModelsButtonRef>(null)
   const knowledgeBaseButtonRef = useRef<KnowledgeBaseButtonRef>(null)
-  const mcpToolsButtonRef = useRef<MCPToolsButtonRef>(null)
+  // const mcpToolsButtonRef = useRef<MCPToolsButtonRef>(null)
   const attachmentButtonRef = useRef<AttachmentButtonRef>(null)
   const webSearchButtonRef = useRef<WebSearchButtonRef | null>(null)
   const thinkingButtonRef = useRef<ThinkingButtonRef | null>(null)
@@ -209,11 +206,11 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
         baseUserMessage.mentions = mentionModels
       }
 
-      if (!isEmpty(assistant.mcpServers) && !isEmpty(activedMcpServers)) {
-        baseUserMessage.enabledMCPs = activedMcpServers.filter((server) =>
-          assistant.mcpServers?.some((s) => s.id === server.id)
-        )
-      }
+      // if (!isEmpty(assistant.mcpServers) && !isEmpty(activedMcpServers)) {
+      //   baseUserMessage.enabledMCPs = activedMcpServers.filter((server) =>
+      //     assistant.mcpServers?.some((s) => s.id === server.id)
+      //   )
+      // }
 
       if (topic.prompt) {
         baseUserMessage.assistant.prompt = assistant.prompt ? `${assistant.prompt}\n${topic.prompt}` : topic.prompt
@@ -239,7 +236,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
       console.error('Failed to send message:', error)
     }
   }, [
-    activedMcpServers,
+    // activedMcpServers,
     assistant,
     dispatch,
     files,
@@ -365,33 +362,33 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
           knowledgeBaseButtonRef.current?.openQuickPanel()
         }
       },
-      {
-        label: t('settings.mcp.title'),
-        description: t('settings.mcp.not_support'),
-        icon: <LucideSquareTerminal />,
-        isMenu: true,
-        action: () => {
-          mcpToolsButtonRef.current?.openQuickPanel()
-        }
-      },
-      {
-        label: `MCP ${t('settings.mcp.tabs.prompts')}`,
-        description: '',
-        icon: <LucideSquareTerminal />,
-        isMenu: true,
-        action: () => {
-          mcpToolsButtonRef.current?.openPromptList()
-        }
-      },
-      {
-        label: `MCP ${t('settings.mcp.tabs.resources')}`,
-        description: '',
-        icon: <LucideSquareTerminal />,
-        isMenu: true,
-        action: () => {
-          mcpToolsButtonRef.current?.openResourcesList()
-        }
-      },
+      // {
+      //   label: t('settings.mcp.title'),
+      //   description: t('settings.mcp.not_support'),
+      //   icon: <LucideSquareTerminal />,
+      //   isMenu: true,
+      //   action: () => {
+      //     mcpToolsButtonRef.current?.openQuickPanel()
+      //   }
+      // },
+      // {
+      //   label: `MCP ${t('settings.mcp.tabs.prompts')}`,
+      //   description: '',
+      //   icon: <LucideSquareTerminal />,
+      //   isMenu: true,
+      //   action: () => {
+      //     mcpToolsButtonRef.current?.openPromptList()
+      //   }
+      // },
+      // {
+      //   label: `MCP ${t('settings.mcp.tabs.resources')}`,
+      //   description: '',
+      //   icon: <LucideSquareTerminal />,
+      //   isMenu: true,
+      //   action: () => {
+      //     mcpToolsButtonRef.current?.openResourcesList()
+      //   }
+      // },
       {
         label: t('chat.input.web_search'),
         description: '',
@@ -947,7 +944,8 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
                 />
               )}
               <WebSearchButton ref={webSearchButtonRef} assistant={assistant} ToolbarButton={ToolbarButton} />
-              {showKnowledgeIcon && (
+              {/* 知识库功能已隐藏 */}
+              {/*showKnowledgeIcon && (
                 <KnowledgeBaseButton
                   ref={knowledgeBaseButtonRef}
                   selectedBases={selectedKnowledgeBases}
@@ -955,14 +953,15 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
                   ToolbarButton={ToolbarButton}
                   disabled={files.length > 0}
                 />
-              )}
-              <MCPToolsButton
+              )*/}
+              {/* Mcp按钮 */}
+              {/* <MCPToolsButton
                 assistant={assistant}
                 ref={mcpToolsButtonRef}
                 ToolbarButton={ToolbarButton}
                 setInputValue={setText}
                 resizeTextArea={resizeTextArea}
-              />
+              /> */}
 
               <GenerateImageButton
                 model={model}
