@@ -5,13 +5,9 @@ import { APP_NAME, AppLogo } from '@renderer/config/env'
 import { useTheme } from '@renderer/context/ThemeProvider'
 import { useMinappPopup } from '@renderer/hooks/useMinappPopup'
 import { useRuntime } from '@renderer/hooks/useRuntime'
-import { useSettings } from '@renderer/hooks/useSettings'
-import { useAppDispatch } from '@renderer/store'
-import { setUpdateState } from '@renderer/store/runtime'
 import { ThemeMode } from '@renderer/types'
 import { compareVersions, runAsyncFunction } from '@renderer/utils'
-import { Avatar, Button, Progress, Row, Switch, Tag } from 'antd'
-import { debounce } from 'lodash'
+import { Avatar, Button, Progress, Row, Tag } from 'antd'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,36 +21,36 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
-  const { autoCheckUpdate, setAutoCheckUpdate } = useSettings()
+  // const { autoCheckUpdate, setAutoCheckUpdate } = useSettings()
   const { theme } = useTheme()
-  const dispatch = useAppDispatch()
+  // const dispatch = useAppDispatch()
   const { update } = useRuntime()
   const { openMinapp } = useMinappPopup()
 
-  const onCheckUpdate = debounce(
-    async () => {
-      if (update.checking || update.downloading) {
-        return
-      }
+  // const onCheckUpdate = debounce(
+  //   async () => {
+  //     if (update.checking || update.downloading) {
+  //       return
+  //     }
 
-      if (update.downloaded) {
-        window.api.showUpdateDialog()
-        return
-      }
+  //     if (update.downloaded) {
+  //       window.api.showUpdateDialog()
+  //       return
+  //     }
 
-      dispatch(setUpdateState({ checking: true }))
+  //     dispatch(setUpdateState({ checking: true }))
 
-      try {
-        await window.api.checkForUpdate()
-      } catch (error) {
-        window.message.error(t('settings.about.updateError'))
-      }
+  //     try {
+  //       await window.api.checkForUpdate()
+  //     } catch (error) {
+  //       window.message.error(t('settings.about.updateError'))
+  //     }
 
-      dispatch(setUpdateState({ checking: false }))
-    },
-    2000,
-    { leading: true, trailing: false }
-  )
+  //     dispatch(setUpdateState({ checking: false }))
+  //   },
+  //   2000,
+  //   { leading: true, trailing: false }
+  // )
 
   const onOpenWebsite = (url: string) => {
     window.api.openWebsite(url)
@@ -144,7 +140,7 @@ const AboutSettings: FC = () => {
               </Tag>
             </VersionWrapper>
           </Row>
-          {!isPortable && (
+          {/* {!isPortable && (
             <CheckUpdateButton
               onClick={onCheckUpdate}
               loading={update.checking}
@@ -155,9 +151,9 @@ const AboutSettings: FC = () => {
                   ? t('settings.about.checkUpdate.available')
                   : t('settings.about.checkUpdate')}
             </CheckUpdateButton>
-          )}
+          )} */}
         </AboutHeader>
-        {!isPortable && (
+        {/* {!isPortable && (
           <>
             <SettingDivider />
             <SettingRow>
@@ -165,7 +161,7 @@ const AboutSettings: FC = () => {
               <Switch value={autoCheckUpdate} onChange={(v) => setAutoCheckUpdate(v)} />
             </SettingRow>
           </>
-        )}
+        )} */}
       </SettingGroup>
       {hasNewVersion && update.info && (
         <SettingGroup theme={theme}>
