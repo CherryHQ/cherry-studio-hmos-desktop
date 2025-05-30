@@ -256,7 +256,8 @@ const ChatNavigation: FC<ChatNavigationProps> = ({ containerId }) => {
       lastMoveTime.current = now
 
       // Calculate if the mouse is in the trigger area
-      const triggerWidth = 60 // Same as the width in styled component
+      const triggerWidth = 100 // Increased trigger width for better response
+      const buttonGroupHeight = 196 // Approximate height of button group (7 buttons * 28px)
 
       // Safe way to calculate position when using calc expressions
       let rightOffset = 16 // Default right offset
@@ -266,8 +267,8 @@ const ChatNavigation: FC<ChatNavigationProps> = ({ containerId }) => {
       }
 
       const rightPosition = window.innerWidth - rightOffset - triggerWidth
-      const topPosition = window.innerHeight * 0.3 // 30% from top
-      const height = window.innerHeight * 0.3 // 30% of window height
+      const topPosition = window.innerHeight / 2 - buttonGroupHeight / 2 // Center vertically
+      const height = buttonGroupHeight + 1 // Add some padding to the height
 
       const isInTriggerArea =
         e.clientX > rightPosition &&
