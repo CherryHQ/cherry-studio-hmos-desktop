@@ -449,9 +449,18 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
         return
       }
     }
-
+    console.info(
+      'Inputbar handleKeyDown:',
+      event.key,
+      event.code,
+      event.key === 'Process',
+      event.code === ' ',
+      event.code == ' ',
+      event.key === ' ' || event.code === ' ',
+      autoTranslateWithSpace
+    )
     if (autoTranslateWithSpace) {
-      if (event.key === ' ' || event.code === ' ') {
+      if (event.key === ' ' || event.code === 'Process') {
         setSpaceClickCount((prev) => prev + 1)
 
         if (spaceClickTimer.current) {
