@@ -451,7 +451,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic, topic }) =
     }
 
     if (autoTranslateWithSpace) {
-      if (event.key === ' ') {
+      if (event.key === ' ' || event.code === ' ') {
         setSpaceClickCount((prev) => prev + 1)
 
         if (spaceClickTimer.current) {
