@@ -166,6 +166,7 @@ const MainMenus: FC = () => {
     files: '/files'
   }
 
+  // 过滤掉知识库图标
   return sidebarIcons.visible.map((icon) => {
     const path = pathMap[icon]
     const isActive = path === '/' ? isRoute(path) : isRoutes(path)

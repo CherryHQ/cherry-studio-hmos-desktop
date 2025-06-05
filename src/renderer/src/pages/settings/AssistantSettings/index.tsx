@@ -67,10 +67,12 @@ const AssistantSettingPopupContainer: React.FC<Props> = ({ resolve, tab, ...prop
       key: 'messages',
       label: t('assistants.settings.preset_messages')
     },
+    // 知识库选项卡
     showKnowledgeIcon && {
       key: 'knowledge_base',
       label: t('assistants.settings.knowledge_base')
     },
+    // Mcp服务器选项卡
     {
       key: 'mcp',
       label: t('assistants.settings.mcp')

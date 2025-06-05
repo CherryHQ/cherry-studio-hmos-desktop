@@ -113,6 +113,7 @@ export interface SettingsState {
   topicNamingPrompt: string
   // Sidebar icons
   sidebarIcons: {
+    // 隐藏knowledge图标
     visible: SidebarIcon[]
     disabled: SidebarIcon[]
   }
