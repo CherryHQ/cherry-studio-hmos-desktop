@@ -1,5 +1,6 @@
 import { PushpinOutlined } from '@ant-design/icons'
 import { HStack } from '@renderer/components/Layout'
+import LocalLLMGuide from '@renderer/components/LocalLLMGuide'
 import ModelTagsWithLabel from '@renderer/components/ModelTagsWithLabel'
 import { TopView } from '@renderer/components/TopView'
 import { getModelLogo, isEmbeddingModel, isRerankModel } from '@renderer/config/models'
@@ -445,6 +446,16 @@ const PopupContainer: React.FC<Props> = ({ model, resolve }) => {
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </EmptyState>
       )}
+
+      {/* 显示本地LLM模型使用指南 */}
+      {focusedItemKey && modelItems.find((item) => item.key === focusedItemKey)?.model?.provider === 'ollama' && (
+        <GuideContainer>
+          <LocalLLMGuide
+            modelId={modelItems.find((item) => item.key === focusedItemKey)?.model?.id}
+            error={modelItems.find((item) => item.key === focusedItemKey)?.model?.custom_properties?.error}
+          />
+        </GuideContainer>
+      )}
     </Modal>
   )
 }
@@ -638,6 +649,10 @@ const PinIconWrapper = styled.div.attrs({ className: 'pin-icon' })<{ $isPinned?:
     opacity: 1 !important;
     color: ${(props) => (props.$isPinned ? 'var(--color-primary)' : 'inherit')};
   }
+`
+const GuideContainer = styled.div`
+  padding: 0 16px;
+  margin-top: 10px;
 `
 
 const TopViewKey = 'SelectModelPopup'

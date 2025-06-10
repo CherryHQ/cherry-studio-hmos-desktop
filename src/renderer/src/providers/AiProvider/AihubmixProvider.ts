@@ -8,6 +8,7 @@ import { CompletionsParams } from '.'
 import AnthropicProvider from './AnthropicProvider'
 import BaseProvider from './BaseProvider'
 import GeminiProvider from './GeminiProvider'
+import LocalLLMProvider from './LocalLLMProvider'
 import OpenAIProvider from './OpenAIProvider'
 import OpenAIResponseProvider from './OpenAIResponseProvider'
 
@@ -27,6 +28,7 @@ export default class AihubmixProvider extends BaseProvider {
     this.providers.set('claude', new AnthropicProvider(provider))
     this.providers.set('gemini', new GeminiProvider({ ...provider, apiHost: 'https://aihubmix.com/gemini' }))
     this.providers.set('openai', new OpenAIResponseProvider(provider))
+    this.providers.set('llama3.2', new LocalLLMProvider(provider))
     this.providers.set('default', new OpenAIProvider(provider))
 
     // 设置默认提供商
@@ -49,6 +51,9 @@ export default class AihubmixProvider extends BaseProvider {
     }
     if (isOpenAILLMModel(model)) {
       return this.providers.get('openai')!
+    }
+    if (id.startsWith('llama3.2')) {
+      return this.providers.get('llama3.2')!
     }
 
     return this.defaultProvider

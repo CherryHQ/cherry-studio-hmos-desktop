@@ -395,6 +395,14 @@ export function getModelLogo(modelId: string) {
 }
 
 export const SYSTEM_MODELS: Record<string, Model[]> = {
+  'llama3.2': [
+    {
+      id: 'ollama',
+      provider: 'llama3.2',
+      name: 'llama3.2',
+      group: 'llama3.2'
+    }
+  ],
   aihubmix: [
     {
       id: 'gpt-4o',
@@ -2201,6 +2209,9 @@ export function isOpenAILLMModel(model: Model): boolean {
     return false
   }
   if (model.id.includes('gpt-4o-image')) {
+    return false
+  }
+  if (model.provider === 'llama3.2') {
     return false
   }
   if (isOpenAIReasoningModel(model)) {

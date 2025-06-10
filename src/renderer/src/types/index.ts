@@ -164,7 +164,14 @@ export type Provider = {
   notes?: string
 }
 
-export type ProviderType = 'openai' | 'openai-response' | 'anthropic' | 'gemini' | 'qwenlm' | 'azure-openai'
+export type ProviderType =
+  | 'openai'
+  | 'openai-response'
+  | 'anthropic'
+  | 'gemini'
+  | 'qwenlm'
+  | 'azure-openai'
+  | 'llama3.2'
 
 export type ModelType = 'text' | 'vision' | 'embedding' | 'reasoning' | 'function_calling' | 'web_search'
 
