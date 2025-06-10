@@ -17,7 +17,7 @@ import AgentsPage from './pages/agents/AgentsPage'
 import AppsPage from './pages/apps/AppsPage'
 import FilesPage from './pages/files/FilesPage'
 import HomePage from './pages/home/HomePage'
-import KnowledgePage from './pages/knowledge/KnowledgePage'
+// import KnowledgePage from './pages/knowledge/KnowledgePage'
 import PaintingsRoutePage from './pages/paintings/PaintingsRoutePage'
 import SettingsPage from './pages/settings/SettingsPage'
 import TranslatePage from './pages/translate/TranslatePage'
@@ -41,7 +41,7 @@ function App(): React.ReactElement {
                         <Route path="/paintings/*" element={<PaintingsRoutePage />} />
                         <Route path="/translate" element={<TranslatePage />} />
                         <Route path="/files" element={<FilesPage />} />
-                        <Route path="/knowledge" element={<KnowledgePage />} />
+                        {/* <Route path="/knowledge" element={<KnowledgePage />} /> */}
                         <Route path="/apps" element={<AppsPage />} />
                         <Route path="/settings/*" element={<SettingsPage />} />
                       </Routes>

@@ -330,7 +330,7 @@ const InputbarTools = ({
             disabled={files.length > 0}
           />
         ),
-        condition: showKnowledgeIcon
+        condition: false // 隐藏知识库按钮
       },
       {
         key: 'mcp_tools',
@@ -343,7 +343,8 @@ const InputbarTools = ({
             setInputValue={setText}
             resizeTextArea={resizeTextArea}
           />
-        )
+        ),
+        condition: false // 隐藏MCP工具按钮
       },
       {
         key: 'generate_image',
