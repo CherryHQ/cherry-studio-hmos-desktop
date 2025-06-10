@@ -12,7 +12,7 @@ import {
   Package,
   Rocket,
   Settings2,
-  SquareTerminal,
+  // SquareTerminal,
   TextCursorInput,
   Zap
 } from 'lucide-react'
@@ -26,8 +26,7 @@ import AboutSettings from './AboutSettings'
 import DataSettings from './DataSettings/DataSettings'
 import DisplaySettings from './DisplaySettings/DisplaySettings'
 import GeneralSettings from './GeneralSettings'
-import MCPSettings from './MCPSettings'
-import { McpSettingsNavbar } from './MCPSettings/McpSettingsNavbar'
+// import { McpSettingsNavbar } from './MCPSettings/McpSettingsNavbar'
 import MiniAppSettings from './MiniappSettings/MiniAppSettings'
 import ProvidersList from './ProviderSettings'
 import QuickAssistantSettings from './QuickAssistantSettings'
@@ -48,7 +47,7 @@ const SettingsPage: FC = () => {
     <Container>
       <Navbar>
         <NavbarCenter style={{ borderRight: 'none' }}>{t('settings.title')}</NavbarCenter>
-        {pathname.includes('/settings/mcp') && <McpSettingsNavbar />}
+        {/* {pathname.includes('/settings/mcp') && <McpSettingsNavbar />} */}
       </Navbar>
       <ContentContainer id="content-container">
         <SettingMenus>
@@ -70,12 +69,12 @@ const SettingsPage: FC = () => {
               {t('settings.websearch.title')}
             </MenuItem>
           </MenuItemLink>
-          <MenuItemLink to="/settings/mcp">
+          {/* <MenuItemLink to="/settings/mcp">
             <MenuItem className={isRoute('/settings/mcp')}>
               <SquareTerminal size={18} />
               {t('settings.mcp.title')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <MenuItemLink to="/settings/general">
             <MenuItem className={isRoute('/settings/general')}>
               <Settings2 size={18} />
@@ -139,7 +138,7 @@ const SettingsPage: FC = () => {
             <Route path="model" element={<ModelSettings />} />
             <Route path="web-search" element={<WebSearchSettings />} />
             {/* Mcp服务器路由 */}
-            <Route path="mcp/*" element={<MCPSettings />} />
+            {/* <Route path="mcp/*" element={<MCPSettings />} /> */}
             <Route path="general" element={<GeneralSettings />} />
             <Route path="display" element={<DisplaySettings />} />
             {showMiniAppSettings && <Route path="miniapps" element={<MiniAppSettings />} />}
