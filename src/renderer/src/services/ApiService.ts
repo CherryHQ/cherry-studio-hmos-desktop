@@ -414,7 +414,7 @@ export async function fetchSuggestions({
 
 function hasApiKey(provider: Provider) {
   if (!provider) return false
-  if (provider.id === 'ollama' || provider.id === 'lmstudio') return true
+  if (provider.id === 'Ollama' || provider.id === 'lmstudio') return true
   return !isEmpty(provider.apiKey)
 }
 
@@ -439,7 +439,7 @@ export function checkApiProvider(provider: Provider): {
   const key = 'api-check'
   const style = { marginTop: '3vh' }
 
-  if (provider.id !== 'ollama' && provider.id !== 'lmstudio') {
+  if (provider.id !== 'Ollama' && provider.id !== 'lmstudio') {
     if (!provider.apiKey) {
       window.message.error({ content: i18n.t('message.error.enter.api.key'), key, style })
       return {
