@@ -343,8 +343,7 @@ const InputbarTools = ({
             setInputValue={setText}
             resizeTextArea={resizeTextArea}
           />
-        ),
-        condition: false // 隐藏MCP工具按钮
+        )
       },
       {
         key: 'generate_image',

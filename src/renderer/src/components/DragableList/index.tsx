@@ -42,13 +42,14 @@ const DragableList: FC<Props<any>> = ({
       onUpdate(reorderAgents)
     }
   }
-
+  //过滤掉内置和stdio类型的MCP服务器
+  const filteredList = list.filter((item) => item.type !== 'stdio' && item.type !== 'inMemory')
   return (
     <DragDropContext onDragStart={onDragStart} onDragEnd={_onDragEnd}>
       <Droppable droppableId="droppable" {...droppableProps}>
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef} style={style}>
-            <VirtualList data={list} itemKey="id">
+            <VirtualList data={filteredList} itemKey="id">
               {(item, index) => {
                 const id = item.id || item
                 return (
