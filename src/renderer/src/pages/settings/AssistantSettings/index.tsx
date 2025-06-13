@@ -73,10 +73,10 @@ const AssistantSettingPopupContainer: React.FC<Props> = ({ resolve, tab, ...prop
     //   label: t('assistants.settings.knowledge_base')
     // },
     // Mcp服务器选项卡
-    // {
-    //   key: 'mcp',
-    //   label: t('assistants.settings.mcp')
-    // },
+    {
+      key: 'mcp',
+      label: t('assistants.settings.mcp')
+    },
     {
       key: 'regular_phrases',
       label: t('assistants.settings.regular_phrases.title', 'Regular Prompts')

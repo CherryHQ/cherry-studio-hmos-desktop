@@ -134,7 +134,11 @@ const MCPToolsButton: FC<Props> = ({ ref, setInputValue, resizeTextArea, Toolbar
   const handleMcpServerSelect = useCallback(
     (server: MCPServer) => {
       if (assistantMcpServers.some((s) => s.id === server.id)) {
-        updateAssistant({ ...assistant, mcpServers: mcpServers?.filter((s) => s.id !== server.id) })
+        // 过滤掉鸿蒙内stdio服务器
+        updateAssistant({
+          ...assistant,
+          mcpServers: mcpServers?.filter((s) => s.id !== server.id && server.type !== 'inMemory')
+        })
       } else {
         updateAssistant({ ...assistant, mcpServers: [...mcpServers, server] })
       }
@@ -165,13 +169,16 @@ const MCPToolsButton: FC<Props> = ({ ref, setInputValue, resizeTextArea, Toolbar
   )
 
   const menuItems = useMemo(() => {
-    const newList: QuickPanelListItem[] = activedMcpServers.map((server) => ({
-      label: server.name,
-      description: server.description || server.baseUrl,
-      icon: <SquareTerminal />,
-      action: () => EventEmitter.emit('mcp-server-select', server),
-      isSelected: assistantMcpServers.some((s) => s.id === server.id)
-    }))
+    //显示过略掉内置
+    const newList: QuickPanelListItem[] = activedMcpServers
+      .filter((server) => server.type != 'inMemory' && server.type != 'stdio')
+      .map((server) => ({
+        label: server.name,
+        description: server.description || server.baseUrl,
+        icon: <SquareTerminal />,
+        action: () => EventEmitter.emit('mcp-server-select', server),
+        isSelected: assistantMcpServers.some((s) => s.id === server.id)
+      }))
 
     newList.push({
       label: t('settings.mcp.addServer') + '...',
