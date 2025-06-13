@@ -518,7 +518,7 @@ const getIntegratedInitialState = () => {
     translateModel: model,
     providers: [
       {
-        id: 'ollama',
+        id: 'ollama-native',
         name: 'Ollama',
         apiKey: 'ollama',
         apiHost: 'http://localhost:15537/v1/',

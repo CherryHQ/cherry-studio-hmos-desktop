@@ -395,6 +395,7 @@ export function getModelLogo(modelId: string) {
 }
 
 export const SYSTEM_MODELS: Record<string, Model[]> = {
+  Ollama: [],
   aihubmix: [
     {
       id: 'gpt-4o',
