@@ -4,6 +4,7 @@ import AihubmixProvider from './AihubmixProvider'
 import AnthropicProvider from './AnthropicProvider'
 import BaseProvider from './BaseProvider'
 import GeminiProvider from './GeminiProvider'
+import OllamaProvider from './OllamaProvider'
 import OpenAIProvider from './OpenAIProvider'
 import OpenAIResponseProvider from './OpenAIResponseProvider'
 
@@ -22,6 +23,8 @@ export default class ProviderFactory {
         return new AnthropicProvider(provider)
       case 'gemini':
         return new GeminiProvider(provider)
+      case 'Ollama':
+        return new OllamaProvider(provider)
       default:
         return new OpenAIProvider(provider)
     }
