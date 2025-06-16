@@ -6,10 +6,10 @@ import { useTheme } from '@renderer/context/ThemeProvider'
 import { useMinappPopup } from '@renderer/hooks/useMinappPopup'
 import { useRuntime } from '@renderer/hooks/useRuntime'
 import { ThemeMode } from '@renderer/types'
-import { compareVersions, runAsyncFunction } from '@renderer/utils'
-import { Avatar, Button, Progress, Row, Tag } from 'antd'
+import { compareVersions } from '@renderer/utils'
+import { Avatar, Button, Progress, Row } from 'antd'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
-import { FC, useEffect, useState } from 'react'
+import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Markdown from 'react-markdown'
 import { Link } from 'react-router-dom'
@@ -21,7 +21,7 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
-  const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess } = useSettings()
+  // const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess } = useSettings()
   const { theme } = useTheme()
   // const dispatch = useAppDispatch()
   const { update } = useRuntime()
@@ -94,15 +94,15 @@ const AboutSettings: FC = () => {
 
   const hasNewVersion = update?.info?.version && version ? compareVersions(update.info.version, version) > 0 : false
 
-  useEffect(() => {
-    runAsyncFunction(async () => {
-      const appInfo = await window.api.getAppInfo()
-      setVersion(appInfo.version)
-      setIsPortable(appInfo.isPortable)
-    })
-    setEarlyAccess(earlyAccess)
-    setAutoCheckUpdate(autoCheckUpdate)
-  }, [autoCheckUpdate, earlyAccess, setAutoCheckUpdate, setEarlyAccess])
+  // useEffect(() => {
+  //   runAsyncFunction(async () => {
+  //     const appInfo = await window.api.getAppInfo()
+  //     setVersion(appInfo.version)
+  //     setIsPortable(appInfo.isPortable)
+  //   })
+  //   setEarlyAccess(earlyAccess)
+  //   setAutoCheckUpdate(autoCheckUpdate)
+  // }, [autoCheckUpdate, earlyAccess, setAutoCheckUpdate, setEarlyAccess])
 
   return (
     <SettingContainer theme={theme}>
@@ -134,12 +134,12 @@ const AboutSettings: FC = () => {
             <VersionWrapper>
               <Title>{APP_NAME}</Title>
               <Description>{t('settings.about.description')}</Description>
-              <Tag
+              {/* <Tag
                 onClick={() => onOpenWebsite('https://github.com/CherryHQ/cherry-studio/releases')}
                 color="cyan"
                 style={{ marginTop: 8, cursor: 'pointer' }}>
                 v{version}
-              </Tag>
+              </Tag> */}
             </VersionWrapper>
           </Row>
           {/* {!isPortable && (
