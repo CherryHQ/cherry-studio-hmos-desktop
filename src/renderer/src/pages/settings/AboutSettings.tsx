@@ -7,12 +7,7 @@ import { useMinappPopup } from '@renderer/hooks/useMinappPopup'
 import { useRuntime } from '@renderer/hooks/useRuntime'
 import { ThemeMode } from '@renderer/types'
 import { compareVersions, runAsyncFunction } from '@renderer/utils'
-<<<<<<< HEAD
-import { Avatar, Button, Progress, Row, Switch, Tag, Tooltip } from 'antd'
-import { debounce } from 'lodash'
-=======
 import { Avatar, Button, Progress, Row, Tag } from 'antd'
->>>>>>> v1.4.0-hmos1
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,11 +21,7 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
-<<<<<<< HEAD
   const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess } = useSettings()
-=======
-  // const { autoCheckUpdate, setAutoCheckUpdate } = useSettings()
->>>>>>> v1.4.0-hmos1
   const { theme } = useTheme()
   // const dispatch = useAppDispatch()
   const { update } = useRuntime()
