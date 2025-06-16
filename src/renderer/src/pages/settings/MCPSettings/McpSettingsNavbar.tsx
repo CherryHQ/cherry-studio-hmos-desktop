@@ -3,11 +3,11 @@ import { HStack } from '@renderer/components/Layout'
 import { isLinux, isWindows } from '@renderer/config/constant'
 import { useFullscreen } from '@renderer/hooks/useFullscreen'
 import { Button, Dropdown, Menu, type MenuProps } from 'antd'
-import { ChevronDown, Search } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
-import InstallNpxUv from './InstallNpxUv'
+// import InstallNpxUv from './InstallNpxUv'
 
 const mcpResources = [
   {
@@ -73,10 +73,12 @@ export const McpSettingsNavbar = () => {
     )
   }))
 
+  // 搜索Mcp、更多Mcp按钮
   return (
     <NavbarRight style={{ paddingRight: useFullscreen() ? '12px' : isWindows ? 150 : isLinux ? 120 : 12 }}>
       <HStack alignItems="center" gap={5}>
-        <Button
+        {/* 去掉搜索Mcp按钮 */}
+        {/* <Button
           size="small"
           type="text"
           onClick={() => navigate('/settings/mcp/npx-search')}
@@ -84,7 +86,7 @@ export const McpSettingsNavbar = () => {
           className="nodrag"
           style={{ fontSize: 13, height: 28, borderRadius: 20 }}>
           {t('settings.mcp.searchNpx')}
-        </Button>
+        </Button> */}
         <Dropdown menu={{ items: resourceMenuItems }} trigger={['click']}>
           <Button
             size="small"
@@ -95,7 +97,7 @@ export const McpSettingsNavbar = () => {
             <ChevronDown size={16} />
           </Button>
         </Dropdown>
-        <InstallNpxUv mini />
+        {/* <InstallNpxUv mini /> */}
       </HStack>
     </NavbarRight>
   )

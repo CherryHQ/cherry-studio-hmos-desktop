@@ -9,7 +9,7 @@ import Logger from 'electron-log'
 import { isDev, isWin } from './constant'
 import { registerIpc } from './ipc'
 import { configManager } from './services/ConfigManager'
-import mcpService from './services/MCPService'
+// import mcpService from './services/MCPService'
 import {
   CHERRY_STUDIO_PROTOCOL,
   handleProtocolUrl,
@@ -88,9 +88,9 @@ if (!app.requestSingleInstanceLock()) {
     if (isLaunchToTray) {
       app.dock?.hide()
     }
-
-    const mainWindow = windowService.createMainWindow()
     new TrayService()
+    // console.log('创建托盘完毕')
+    const mainWindow = windowService.createMainWindow()
 
     app.on('activate', function () {
       const mainWindow = windowService.getMainWindow()
@@ -153,11 +153,11 @@ if (!app.requestSingleInstanceLock()) {
 
   app.on('will-quit', async () => {
     // event.preventDefault()
-    try {
-      await mcpService.cleanup()
-    } catch (error) {
-      Logger.error('Error cleaning up MCP service:', error)
-    }
+    // try {
+    //   await mcpService.cleanup()
+    // } catch (error) {
+    //   Logger.error('Error cleaning up MCP service:', error)
+    // }
   })
 
   // In this file you can include the rest of your app"s specific main process

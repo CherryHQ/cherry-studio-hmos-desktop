@@ -25,9 +25,12 @@ function expandHome(filepath: string): string {
 // Security utilities
 async function validatePath(allowedDirectories: string[], requestedPath: string): Promise<string> {
   const expandedPath = expandHome(requestedPath)
+  console.log('🚀 ~ filesystem.ts:30 ~ validatePath ~ expandedPath:', expandedPath)
+
   const absolute = path.isAbsolute(expandedPath)
     ? path.resolve(expandedPath)
     : path.resolve(process.cwd(), expandedPath)
+  console.log('🚀 ~ filesystem.ts:32 ~ validatePath ~ absolute:', absolute)
 
   const normalizedRequested = normalizePath(absolute)
 
@@ -154,6 +157,7 @@ async function searchFiles(
   const results: string[] = []
 
   async function search(currentPath: string) {
+    console.log('🚀 ~ filesystem.ts:158 ~ search ~ currentPath:', currentPath)
     const entries = await fs.readdir(currentPath, { withFileTypes: true })
 
     for (const entry of entries) {

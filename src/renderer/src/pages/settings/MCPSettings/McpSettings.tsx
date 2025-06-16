@@ -74,7 +74,7 @@ const McpSettings: React.FC = () => {
   } = useLocation().state as { server: MCPServer }
   const server = useMCPServer(serverId).server as MCPServer
   const { deleteMCPServer, updateMCPServer } = useMCPServers()
-  const [serverType, setServerType] = useState<MCPServer['type']>('stdio')
+  const [serverType, setServerType] = useState<MCPServer['type']>('sse')
   const [form] = Form.useForm<MCPFormValues>()
   const [loading, setLoading] = useState(false)
   const [isFormChanged, setIsFormChanged] = useState(false)
@@ -95,7 +95,7 @@ const McpSettings: React.FC = () => {
 
   // Initialize form values whenever the server changes
   useEffect(() => {
-    const serverType: MCPServer['type'] = server.type || (server.baseUrl ? 'sse' : 'stdio')
+    const serverType: MCPServer['type'] = server.type || (server.baseUrl ? 'streamableHttp' : 'sse')
     setServerType(serverType)
 
     // Set registry UI state based on command and registryUrl
@@ -419,15 +419,11 @@ const McpSettings: React.FC = () => {
             <TextArea rows={2} placeholder={t('common.description')} />
           </Form.Item>
           {server.type !== 'inMemory' && (
-            <Form.Item
-              name="serverType"
-              label={t('settings.mcp.type')}
-              rules={[{ required: true }]}
-              initialValue="stdio">
+            <Form.Item name="serverType" label={t('settings.mcp.type')} rules={[{ required: true }]} initialValue="sse">
               <Select
                 onChange={(value) => setServerType(value)}
                 options={[
-                  { label: t('settings.mcp.stdio'), value: 'stdio' },
+                  // { label: t('settings.mcp.stdio'), value: 'stdio' },
                   { label: t('settings.mcp.sse'), value: 'sse' },
                   { label: t('settings.mcp.streamableHttp'), value: 'streamableHttp' }
                 ]}

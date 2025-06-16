@@ -71,7 +71,7 @@ const initialState: ShortcutsState = {
     },
     {
       key: 'copy_last_message',
-      shortcut: [isMac ? 'Command' : 'Ctrl', 'Shift', 'C'],
+      shortcut: [isMac ? 'Command' : 'Ctrl', 'Alt', 'C'],
       editable: true,
       enabled: false,
       system: false
