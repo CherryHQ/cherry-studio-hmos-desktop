@@ -4,6 +4,7 @@ import { AihubmixAPIClient } from './AihubmixAPIClient'
 import { AnthropicAPIClient } from './anthropic/AnthropicAPIClient'
 import { BaseApiClient } from './BaseApiClient'
 import { GeminiAPIClient } from './gemini/GeminiAPIClient'
+import { OllamaApiClient } from './openai/OllamaApiClient'
 import { OpenAIAPIClient } from './openai/OpenAIApiClient'
 import { OpenAIResponseAPIClient } from './openai/OpenAIResponseAPIClient'
 
@@ -28,6 +29,12 @@ export class ApiClientFactory {
     if (provider.id === 'aihubmix') {
       console.log(`[ApiClientFactory] Creating AihubmixAPIClient for provider: ${provider.id}`)
       instance = new AihubmixAPIClient(provider) as BaseApiClient
+      return instance
+    }
+
+    if (provider.id === 'localLargeModel') {
+      console.log(`[ApiClientFactory] Creating AihubmixAPIClient for provider: ${provider.id}`)
+      instance = new OllamaApiClient(provider) as BaseApiClient
       return instance
     }
 
