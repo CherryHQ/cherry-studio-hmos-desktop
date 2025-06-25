@@ -295,9 +295,8 @@ export interface LLMResponseCompleteChunk {
    */
   type: ChunkType.LLM_RESPONSE_COMPLETE
 }
+ResponseError
 export interface ErrorChunk {
-  error: ResponseError
-
   type: ChunkType.ERROR
 }
 

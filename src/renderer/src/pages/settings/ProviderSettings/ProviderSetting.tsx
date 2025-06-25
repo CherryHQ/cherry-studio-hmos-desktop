@@ -270,7 +270,8 @@ const ProviderSetting: FC<Props> = ({ provider: _provider }) => {
       return apiHost.replace('#', '')
     }
     if (provider.id == 'localLargeModel') {
-      return apiHost
+      // return apiHost
+      return formatApiHost(apiHost) + 'chat/completions'
     }
     if (provider.type === 'openai') {
       return formatApiHost(apiHost) + 'chat/completions'

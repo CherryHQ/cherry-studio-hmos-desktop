@@ -1,39 +1,82 @@
+import { DEFAULT_MAX_TOKENS } from '@renderer/config/constant'
+import Logger from '@renderer/config/logger'
 import {
+  findTokenLimit,
+  GEMINI_FLASH_MODEL_REGEX,
   getOpenAIWebSearchParams,
+  isDoubaoThinkingAutoModel,
+  isReasoningModel,
+  isSupportedReasoningEffortGrokModel,
+  isSupportedReasoningEffortModel,
   isSupportedReasoningEffortOpenAIModel,
-  isSupportedThinkingTokenQwenModel
+  isSupportedThinkingTokenClaudeModel,
+  isSupportedThinkingTokenDoubaoModel,
+  isSupportedThinkingTokenGeminiModel,
+  isSupportedThinkingTokenModel,
+  isSupportedThinkingTokenQwenModel,
+  isVisionModel
 } from '@renderer/config/models'
 import { processPostsuffixQwen3Model, processReqMessages } from '@renderer/services/ModelMessageService'
-import { Provider, WebSearchSource } from '@renderer/types'
+import { estimateTextTokens } from '@renderer/services/TokenService'
+// For Copilot token
+import {
+  Assistant,
+  EFFORT_RATIO,
+  FileTypes,
+  MCPCallToolResponse,
+  MCPTool,
+  MCPToolResponse,
+  Model,
+  Provider,
+  ToolCallResponse,
+  WebSearchSource
+} from '@renderer/types'
 import { ChunkType } from '@renderer/types/chunk'
+import { Message } from '@renderer/types/newMessage'
 import {
   OpenAISdkMessageParam,
   OpenAISdkParams,
   OpenAISdkRawChunk,
   OpenAISdkRawContentSource,
-  OpenAISdkRawOutput
+  OpenAISdkRawOutput,
+  ReasoningEffortOptionalParams
 } from '@renderer/types/sdk'
 import { addImageFileToContents } from '@renderer/utils/formats'
-import { isEnabledToolUse } from '@renderer/utils/mcp-tools'
+import {
+  isEnabledToolUse,
+  mcpToolCallResponseToOpenAICompatibleMessage,
+  mcpToolsToOpenAIChatTools,
+  openAIToolsToMcpTool
+} from '@renderer/utils/mcp-tools'
+import { findFileBlocks, findImageBlocks } from '@renderer/utils/messageUtils/find'
 import { buildSystemPrompt } from '@renderer/utils/prompt'
-import OpenAI from 'openai'
-import { Stream } from 'openai/streaming'
+import { t } from 'i18next'
+import OpenAI, { AzureOpenAI } from 'openai'
+import { ChatCompletionContentPart, ChatCompletionContentPartRefusal, ChatCompletionTool } from 'openai/resources'
 
+import { GenericChunk } from '../../middleware/schemas'
 import { RequestTransformer, ResponseChunkTransformer, ResponseChunkTransformerContext } from '../types'
-import { OpenAIAPIClient } from './OpenAIApiClient'
+import { OpenAIBaseClient } from './OpenAIBaseClient'
 
-export class OllamaApiClient extends OpenAIAPIClient {
+export class OllamaApiClient extends OpenAIBaseClient<
+  OpenAI | AzureOpenAI,
+  OpenAISdkParams,
+  OpenAISdkRawOutput,
+  OpenAISdkRawChunk,
+  OpenAISdkMessageParam,
+  OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
+  ChatCompletionTool
+> {
   constructor(provider: Provider) {
     super(provider)
   }
   // 仅适用于openai
-  override getBaseURL(): string {
+  override getBaseURL2(): string {
     const host = this.provider.apiHost
     return host
   }
   override async listModels(): Promise<OpenAI.Models.Model[]> {
-    const baseURL = this.getBaseURL()
-
+    const baseURL = this.getBaseURL2()
     const response = await fetch(baseURL + '/api/tags', {
       method: 'get',
       headers: {
@@ -58,79 +101,355 @@ export class OllamaApiClient extends OpenAIAPIClient {
     payload: OpenAISdkParams,
     options?: OpenAI.RequestOptions
   ): Promise<OpenAISdkRawOutput> {
-    const baseURL = this.getBaseURL()
-    return new Stream(async function* () {
-      console.log('????', options, payload)
-      console.log(payload.messages)
-      const newMessage = payload.messages.map((message) => {
-        if (Array.isArray(message.content)) {
-          const concatenatedText = message.content.map((item) => item.text).join('  ')
-          return {
-            ...message,
-            content: concatenatedText
-          }
+    const baseURL = this.getBaseURL2()
+    const checkAndUpdateModel = async (model, isActive) => {
+      try {
+        const response = await fetch(baseURL + '/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ model, messages: [], keep_alive: isActive ? undefined : 0 })
+        })
+
+        if (response.status !== 200) {
+          throw new Error('API connection failed')
         }
-        return message
-      })
 
-      const body = JSON.stringify({
-        model: payload.model,
-        messages: newMessage,
-        stream: payload.stream,
-        temperature: payload?.temperature
-        // enable_thinking: false
-      })
-      const response = await fetch(baseURL + '/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: body,
-        signal: options?.signal,
-        timeout: options?.timeout
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        return true
+      } catch (error) {
+        window.message.error(t('message.api.connection.failed'))
+        return false
       }
+    }
+    const isHaveModel = sessionStorage.getItem('localLargeModel')
 
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error('No reader available')
-      }
+    if (isHaveModel === null) {
+      // 初始化模型
+      const success = await checkAndUpdateModel(payload.model, true)
+      if (!success) return null
+      sessionStorage.setItem('localLargeModel', payload.model)
+    } else if (isHaveModel !== payload.model) {
+      // 先关闭旧模型
+      const success = await checkAndUpdateModel(isHaveModel, false) // 传递null表示关闭当前模型
+      if (!success) return null
+      sessionStorage.setItem('localLargeModel', '')
 
-      const decoder = new TextDecoder()
-      let buffer = ''
-      console.log(options, options?.signal?.aborted, '?????')
-      while (options?.signal?.aborted != true) {
-        //这块进行优化
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || '' // Keep the last incomplete line in the buffer
-
-        for (const line of lines) {
-          if (line.trim()) {
-            try {
-              yield JSON.parse(line)
-            } catch (e) {
-              console.error('Failed to parse JSON:', line, e)
-            }
-          }
-        }
-      }
-
-      if (buffer.trim()) {
-        try {
-          yield JSON.parse(buffer)
-        } catch (e) {
-          console.error('Failed to parse JSON:', buffer, e)
-        }
-      }
-    }, new AbortController())
+      // 再启动新模型
+      const successNew = await checkAndUpdateModel(payload.model, true)
+      if (!successNew) return null
+      sessionStorage.setItem('localLargeModel', payload.model)
+    }
+    const sdk = await this.getSdkInstance()
+    // @ts-ignore - SDK参数可能有额外的字段
+    return await sdk.chat.completions.create(payload, options)
   }
+
+  /**
+   * Get the reasoning effort for the assistant
+   * @param assistant - The assistant
+   * @param model - The model
+   * @returns The reasoning effort
+   */
+  // Method for reasoning effort, moved from OpenAIProvider
+  override getReasoningEffort(assistant: Assistant, model: Model): ReasoningEffortOptionalParams {
+    if (this.provider.id === 'groq') {
+      return {}
+    }
+
+    if (!isReasoningModel(model)) {
+      return {}
+    }
+    const reasoningEffort = assistant?.settings?.reasoning_effort
+
+    // Doubao 思考模式支持
+    if (isSupportedThinkingTokenDoubaoModel(model)) {
+      // reasoningEffort 为空，默认开启 enabled
+      if (!reasoningEffort) {
+        return { thinking: { type: 'disabled' } }
+      }
+      if (reasoningEffort === 'high') {
+        return { thinking: { type: 'enabled' } }
+      }
+      if (reasoningEffort === 'auto' && isDoubaoThinkingAutoModel(model)) {
+        return { thinking: { type: 'auto' } }
+      }
+      // 其他情况不带 thinking 字段
+      return {}
+    }
+
+    if (!reasoningEffort) {
+      if (isSupportedThinkingTokenQwenModel(model)) {
+        return { enable_thinking: false }
+      }
+
+      if (isSupportedThinkingTokenClaudeModel(model)) {
+        return {}
+      }
+
+      if (isSupportedThinkingTokenGeminiModel(model)) {
+        // openrouter没有提供一个不推理的选项，先隐藏
+        if (this.provider.id === 'openrouter') {
+          return { reasoning: { max_tokens: 0, exclude: true } }
+        }
+        if (GEMINI_FLASH_MODEL_REGEX.test(model.id)) {
+          return { reasoning_effort: 'none' }
+        }
+        return {}
+      }
+
+      if (isSupportedThinkingTokenDoubaoModel(model)) {
+        return { thinking: { type: 'disabled' } }
+      }
+
+      return {}
+    }
+    const effortRatio = EFFORT_RATIO[reasoningEffort]
+    const budgetTokens = Math.floor(
+      (findTokenLimit(model.id)?.max! - findTokenLimit(model.id)?.min!) * effortRatio + findTokenLimit(model.id)?.min!
+    )
+
+    // OpenRouter models
+    if (model.provider === 'openrouter') {
+      if (isSupportedReasoningEffortModel(model) || isSupportedThinkingTokenModel(model)) {
+        return {
+          reasoning: {
+            effort: reasoningEffort === 'auto' ? 'medium' : reasoningEffort
+          }
+        }
+      }
+    }
+
+    // Qwen models
+    if (isSupportedThinkingTokenQwenModel(model)) {
+      return {
+        enable_thinking: true,
+        thinking_budget: budgetTokens
+      }
+    }
+
+    // Grok models
+    if (isSupportedReasoningEffortGrokModel(model)) {
+      return {
+        reasoning_effort: reasoningEffort
+      }
+    }
+
+    // OpenAI models
+    if (isSupportedReasoningEffortOpenAIModel(model) || isSupportedThinkingTokenGeminiModel(model)) {
+      return {
+        reasoning_effort: reasoningEffort
+      }
+    }
+
+    // Claude models
+    if (isSupportedThinkingTokenClaudeModel(model)) {
+      const maxTokens = assistant.settings?.maxTokens
+      return {
+        thinking: {
+          type: 'enabled',
+          budget_tokens: Math.floor(
+            Math.max(1024, Math.min(budgetTokens, (maxTokens || DEFAULT_MAX_TOKENS) * effortRatio))
+          )
+        }
+      }
+    }
+
+    // Doubao models
+    if (isSupportedThinkingTokenDoubaoModel(model)) {
+      if (assistant.settings?.reasoning_effort === 'high') {
+        return {
+          thinking: {
+            type: 'enabled'
+          }
+        }
+      }
+    }
+
+    // Default case: no special thinking settings
+    return {}
+  }
+
+  /**
+   * Check if the provider does not support files
+   * @returns True if the provider does not support files, false otherwise
+   */
+  private get isNotSupportFiles() {
+    if (this.provider?.isNotSupportArrayContent) {
+      return true
+    }
+
+    const providers = ['deepseek', 'baichuan', 'minimax', 'xirang']
+
+    return providers.includes(this.provider.id)
+  }
+
+  /**
+   * Get the message parameter
+   * @param message - The message
+   * @param model - The model
+   * @returns The message parameter
+   */
+  public async convertMessageToSdkParam(message: Message, model: Model): Promise<OpenAISdkMessageParam> {
+    const isVision = isVisionModel(model)
+    const content = await this.getMessageContent(message)
+    const fileBlocks = findFileBlocks(message)
+    const imageBlocks = findImageBlocks(message)
+
+    if (fileBlocks.length === 0 && imageBlocks.length === 0) {
+      return {
+        role: message.role === 'system' ? 'user' : message.role,
+        content
+      } as OpenAISdkMessageParam
+    }
+
+    // If the model does not support files, extract the file content
+    if (this.isNotSupportFiles) {
+      const fileContent = await this.extractFileContent(message)
+
+      return {
+        role: message.role === 'system' ? 'user' : message.role,
+        content: content + '\n\n---\n\n' + fileContent
+      } as OpenAISdkMessageParam
+    }
+
+    // If the model supports files, add the file content to the message
+    const parts: ChatCompletionContentPart[] = []
+
+    if (content) {
+      parts.push({ type: 'text', text: content })
+    }
+
+    for (const imageBlock of imageBlocks) {
+      if (isVision) {
+        if (imageBlock.file) {
+          const image = await window.api.file.base64Image(imageBlock.file.id + imageBlock.file.ext)
+          parts.push({ type: 'image_url', image_url: { url: image.data } })
+        } else if (imageBlock.url && imageBlock.url.startsWith('data:')) {
+          parts.push({ type: 'image_url', image_url: { url: imageBlock.url } })
+        }
+      }
+    }
+
+    for (const fileBlock of fileBlocks) {
+      const file = fileBlock.file
+      if (!file) {
+        continue
+      }
+
+      if ([FileTypes.TEXT, FileTypes.DOCUMENT].includes(file.type)) {
+        const fileContent = await (await window.api.file.read(file.id + file.ext)).trim()
+        parts.push({
+          type: 'text',
+          text: file.origin_name + '\n' + fileContent
+        })
+      }
+    }
+
+    return {
+      role: message.role === 'system' ? 'user' : message.role,
+      content: parts
+    } as OpenAISdkMessageParam
+  }
+
+  public convertMcpToolsToSdkTools(mcpTools: MCPTool[]): ChatCompletionTool[] {
+    return mcpToolsToOpenAIChatTools(mcpTools)
+  }
+
+  public convertSdkToolCallToMcp(
+    toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
+    mcpTools: MCPTool[]
+  ): MCPTool | undefined {
+    return openAIToolsToMcpTool(mcpTools, toolCall)
+  }
+
+  public convertSdkToolCallToMcpToolResponse(
+    toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
+    mcpTool: MCPTool
+  ): ToolCallResponse {
+    let parsedArgs: any
+    try {
+      parsedArgs = JSON.parse(toolCall.function.arguments)
+    } catch {
+      parsedArgs = toolCall.function.arguments
+    }
+    return {
+      id: toolCall.id,
+      toolCallId: toolCall.id,
+      tool: mcpTool,
+      arguments: parsedArgs,
+      status: 'pending'
+    } as ToolCallResponse
+  }
+
+  public convertMcpToolResponseToSdkMessageParam(
+    mcpToolResponse: MCPToolResponse,
+    resp: MCPCallToolResponse,
+    model: Model
+  ): OpenAISdkMessageParam | undefined {
+    if ('toolUseId' in mcpToolResponse && mcpToolResponse.toolUseId) {
+      // This case is for Anthropic/Claude like tool usage, OpenAI uses tool_call_id
+      // For OpenAI, we primarily expect toolCallId. This might need adjustment if mixing provider concepts.
+      return mcpToolCallResponseToOpenAICompatibleMessage(mcpToolResponse, resp, isVisionModel(model))
+    } else if ('toolCallId' in mcpToolResponse && mcpToolResponse.toolCallId) {
+      return {
+        role: 'tool',
+        tool_call_id: mcpToolResponse.toolCallId,
+        content: JSON.stringify(resp.content)
+      } as OpenAI.Chat.Completions.ChatCompletionToolMessageParam
+    }
+    return undefined
+  }
+
+  public buildSdkMessages(
+    currentReqMessages: OpenAISdkMessageParam[],
+    output: string,
+    toolResults: OpenAISdkMessageParam[],
+    toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[]
+  ): OpenAISdkMessageParam[] {
+    const assistantMessage: OpenAISdkMessageParam = {
+      role: 'assistant',
+      content: output,
+      tool_calls: toolCalls.length > 0 ? toolCalls : undefined
+    }
+    const newReqMessages = [...currentReqMessages, assistantMessage, ...toolResults]
+    return newReqMessages
+  }
+
+  override estimateMessageTokens(message: OpenAISdkMessageParam): number {
+    let sum = 0
+    if (typeof message.content === 'string') {
+      sum += estimateTextTokens(message.content)
+    } else if (Array.isArray(message.content)) {
+      sum += (message.content || [])
+        .map((part: ChatCompletionContentPart | ChatCompletionContentPartRefusal) => {
+          switch (part.type) {
+            case 'text':
+              return estimateTextTokens(part.text)
+            case 'image_url':
+              return estimateTextTokens(part.image_url.url)
+            case 'input_audio':
+              return estimateTextTokens(part.input_audio.data)
+            case 'file':
+              return estimateTextTokens(part.file.file_data || '')
+            default:
+              return 0
+          }
+        })
+        .reduce((acc, curr) => acc + curr, 0)
+    }
+    if ('tool_calls' in message && message.tool_calls) {
+      sum += message.tool_calls.reduce((acc, toolCall) => {
+        return acc + estimateTextTokens(JSON.stringify(toolCall.function.arguments))
+      }, 0)
+    }
+    return sum
+  }
+
+  public extractMessagesFromSdkPayload(sdkPayload: OpenAISdkParams): OpenAISdkMessageParam[] {
+    return sdkPayload.messages || []
+  }
+
   getRequestTransformer(): RequestTransformer<OpenAISdkParams, OpenAISdkMessageParam> {
     return {
       transform: async (
@@ -144,7 +463,6 @@ export class OllamaApiClient extends OpenAIAPIClient {
         messages: OpenAISdkMessageParam[]
         metadata: Record<string, any>
       }> => {
-        console.log('OllamaApiClient.ts: 55', coreRequest, assistant, model, isRecursiveCall, recursiveSdkMessages)
         const { messages, mcpTools, maxTokens, streamOutput, enableWebSearch } = coreRequest
         // 1. 处理系统消息
         let systemMessage = { role: 'system', content: assistant.prompt || '' }
@@ -181,7 +499,7 @@ export class OllamaApiClient extends OpenAIAPIClient {
             userMessages.push(await this.convertMessageToSdkParam(message, model))
           }
         }
-        console.log('aaa')
+
         const lastUserMsg = userMessages.findLast((m) => m.role === 'user')
         if (lastUserMsg && isSupportedThinkingTokenQwenModel(model)) {
           const postsuffix = '/no_think'
@@ -218,6 +536,7 @@ export class OllamaApiClient extends OpenAIAPIClient {
           ...getOpenAIWebSearchParams(model, enableWebSearch),
           ...this.getCustomParameters(assistant)
         }
+
         // Create the appropriate parameters object based on whether streaming is enabled
         const sdkParams: OpenAISdkParams = streamOutput
           ? {
@@ -230,22 +549,20 @@ export class OllamaApiClient extends OpenAIAPIClient {
             }
 
         const timeout = this.getTimeout(model)
-        console.log(sdkParams, messages, timeout, '走到这了吗')
+
         return { payload: sdkParams, messages: reqMessages, metadata: { timeout } }
       }
     }
   }
-  toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[] = []
 
+  // 在RawSdkChunkToGenericChunkMiddleware中使用
   getResponseChunkTransformer = (): ResponseChunkTransformer<OpenAISdkRawChunk> => {
     let hasBeenCollectedWebSearch = false
-    console.log('OllamaApiClient.ts: 123', hasBeenCollectedWebSearch)
     const collectWebSearchData = (
       chunk: OpenAISdkRawChunk,
       contentSource: OpenAISdkRawContentSource,
       context: ResponseChunkTransformerContext
     ) => {
-      console.log(chunk, contentSource, context, 'aaaaaaaaaaaaaaaaaaa')
       if (hasBeenCollectedWebSearch) {
         return
       }
@@ -333,53 +650,95 @@ export class OllamaApiClient extends OpenAIAPIClient {
 
       return null
     }
+    const toolCalls: OpenAI.Chat.Completions.ChatCompletionMessageToolCall[] = []
     return (context: ResponseChunkTransformerContext) => ({
-      async transform(ollamaChunk: OpenAISdkRawChunk, controller: TransformStreamDefaultController<GenericChunk>) {
-        console.warn(
-          '🚀 ~ OllamaApiClient.ts:125 ~ OllamaApiClient ~ transform ~ ollamaChunk:',
-          ollamaChunk,
-          controller
-        )
-        const contentSource: OpenAISdkRawContentSource | null = ollamaChunk.message ? ollamaChunk.message : null
+      async transform(chunk: OpenAISdkRawChunk, controller: TransformStreamDefaultController<GenericChunk>) {
+        // 处理chunk
+        if ('choices' in chunk && chunk.choices && chunk.choices.length > 0) {
+          const choice = chunk.choices[0]
 
-        if (!contentSource) return
-        const webSearchData = collectWebSearchData(ollamaChunk, contentSource, context)
-        if (webSearchData) {
-          controller.enqueue({
-            type: ChunkType.LLM_WEB_SEARCH_COMPLETE,
-            llm_web_search: webSearchData
-          })
-        }
+          if (!choice) return
 
-        if ('message' in ollamaChunk && ollamaChunk.message) {
-          if (ollamaChunk) if (!ollamaChunk.message) return
+          // 对于流式响应，使用delta；对于非流式响应，使用message
+          const contentSource: OpenAISdkRawContentSource | null =
+            'delta' in choice ? choice.delta : 'message' in choice ? choice.message : null
 
-          if (ollamaChunk.done) {
-            if (ollamaChunk.message) {
-              // 非流式传输
+          if (!contentSource) return
+
+          const webSearchData = collectWebSearchData(chunk, contentSource, context)
+          if (webSearchData) {
+            controller.enqueue({
+              type: ChunkType.LLM_WEB_SEARCH_COMPLETE,
+              llm_web_search: webSearchData
+            })
+          }
+
+          // 处理推理内容 (e.g. from OpenRouter DeepSeek-R1)
+          // @ts-ignore - reasoning_content is not in standard OpenAI types but some providers use it
+          const reasoningText = contentSource.reasoning_content || contentSource.reasoning
+          if (reasoningText) {
+            controller.enqueue({
+              type: ChunkType.THINKING_DELTA,
+              text: reasoningText
+            })
+          }
+
+          // 处理文本内容
+          if (contentSource.content) {
+            controller.enqueue({
+              type: ChunkType.TEXT_DELTA,
+              text: contentSource.content
+            })
+          }
+
+          // 处理工具调用
+          if (contentSource.tool_calls) {
+            for (const toolCall of contentSource.tool_calls) {
+              if ('index' in toolCall) {
+                const { id, index, function: fun } = toolCall
+                if (fun?.name) {
+                  toolCalls[index] = {
+                    id: id || '',
+                    function: {
+                      name: fun.name,
+                      arguments: fun.arguments || ''
+                    },
+                    type: 'function'
+                  }
+                } else if (fun?.arguments) {
+                  toolCalls[index].function.arguments += fun.arguments
+                }
+              } else {
+                toolCalls.push(toolCall)
+              }
+            }
+          }
+
+          // 处理finish_reason，发送流结束信号
+          if ('finish_reason' in choice && choice.finish_reason) {
+            Logger.debug(`[OpenAIApiClient] Stream finished with reason: ${choice.finish_reason}`)
+            if (toolCalls.length > 0) {
               controller.enqueue({
-                type: ChunkType.TEXT_DELTA,
-                text: ollamaChunk.message.content || ''
+                type: ChunkType.MCP_TOOL_CREATED,
+                tool_calls: toolCalls
               })
             }
-            console.log('结束了吗结束了吗结束了吗结束了吗结束了吗结束了吗结束了吗结束了吗结束了吗结束了吗结束了吗')
+            const webSearchData = collectWebSearchData(chunk, contentSource, context)
+            if (webSearchData) {
+              controller.enqueue({
+                type: ChunkType.LLM_WEB_SEARCH_COMPLETE,
+                llm_web_search: webSearchData
+              })
+            }
             controller.enqueue({
               type: ChunkType.LLM_RESPONSE_COMPLETE,
               response: {
                 usage: {
-                  prompt_tokens: 120,
-                  completion_tokens: 210,
-                  total_tokens: 1120
+                  prompt_tokens: chunk.usage?.prompt_tokens || 0,
+                  completion_tokens: chunk.usage?.completion_tokens || 0,
+                  total_tokens: (chunk.usage?.prompt_tokens || 0) + (chunk.usage?.completion_tokens || 0)
                 }
               }
-            })
-            return
-          }
-
-          if (ollamaChunk.message) {
-            controller.enqueue({
-              type: ChunkType.TEXT_DELTA,
-              text: ollamaChunk.message.content || ''
             })
           }
         }
