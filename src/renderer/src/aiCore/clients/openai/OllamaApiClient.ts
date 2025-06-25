@@ -57,7 +57,7 @@ import { ChatCompletionContentPart, ChatCompletionContentPartRefusal, ChatComple
 import { GenericChunk } from '../../middleware/schemas'
 import { RequestTransformer, ResponseChunkTransformer, ResponseChunkTransformerContext } from '../types'
 import { OpenAIBaseClient } from './OpenAIBaseClient'
-
+// 空提交
 export class OllamaApiClient extends OpenAIBaseClient<
   OpenAI | AzureOpenAI,
   OpenAISdkParams,
@@ -65,7 +65,7 @@ export class OllamaApiClient extends OpenAIBaseClient<
   OpenAISdkRawChunk,
   OpenAISdkMessageParam,
   OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
-  ChatCompletionTool
+  ChatCompletionTool 
 > {
   constructor(provider: Provider) {
     super(provider)
