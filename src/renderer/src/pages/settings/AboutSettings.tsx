@@ -5,15 +5,11 @@ import { APP_NAME, AppLogo } from '@renderer/config/env'
 import { useTheme } from '@renderer/context/ThemeProvider'
 import { useMinappPopup } from '@renderer/hooks/useMinappPopup'
 import { useRuntime } from '@renderer/hooks/useRuntime'
-import { useSettings } from '@renderer/hooks/useSettings'
-import { useAppDispatch } from '@renderer/store'
-import { setUpdateState } from '@renderer/store/runtime'
 import { ThemeMode } from '@renderer/types'
-import { compareVersions, runAsyncFunction } from '@renderer/utils'
-import { Avatar, Button, Progress, Row, Switch, Tag, Tooltip } from 'antd'
-import { debounce } from 'lodash'
+import { compareVersions } from '@renderer/utils'
+import { Avatar, Button, Progress, Row } from 'antd'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
-import { FC, useEffect, useState } from 'react'
+import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Markdown from 'react-markdown'
 import { Link } from 'react-router-dom'
@@ -25,36 +21,36 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
-  const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess } = useSettings()
+  // const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess } = useSettings()
   const { theme } = useTheme()
-  const dispatch = useAppDispatch()
+  // const dispatch = useAppDispatch()
   const { update } = useRuntime()
   const { openMinapp } = useMinappPopup()
 
-  const onCheckUpdate = debounce(
-    async () => {
-      if (update.checking || update.downloading) {
-        return
-      }
+  // const onCheckUpdate = debounce(
+  //   async () => {
+  //     if (update.checking || update.downloading) {
+  //       return
+  //     }
 
-      if (update.downloaded) {
-        window.api.showUpdateDialog()
-        return
-      }
+  //     if (update.downloaded) {
+  //       window.api.showUpdateDialog()
+  //       return
+  //     }
 
-      dispatch(setUpdateState({ checking: true }))
+  //     dispatch(setUpdateState({ checking: true }))
 
-      try {
-        await window.api.checkForUpdate()
-      } catch (error) {
-        window.message.error(t('settings.about.updateError'))
-      }
+  //     try {
+  //       await window.api.checkForUpdate()
+  //     } catch (error) {
+  //       window.message.error(t('settings.about.updateError'))
+  //     }
 
-      dispatch(setUpdateState({ checking: false }))
-    },
-    2000,
-    { leading: true, trailing: false }
-  )
+  //     dispatch(setUpdateState({ checking: false }))
+  //   },
+  //   2000,
+  //   { leading: true, trailing: false }
+  // )
 
   const onOpenWebsite = (url: string) => {
     window.api.openWebsite(url)
@@ -75,35 +71,38 @@ const AboutSettings: FC = () => {
 
   const showLicense = async () => {
     const { appPath } = await window.api.getAppInfo()
+    console.info('appPath2' + appPath)
+
     openMinapp({
       id: 'cherrystudio-license',
       name: t('settings.about.license.title'),
-      url: `file://${appPath}/resources/cherry-studio/license.html`,
+      url: `file:///data/storage/el1/bundle/electron/resources/resfile/resources/resources/license.html`,
       logo: AppLogo
     })
   }
-
+  //修改。路径
   const showReleases = async () => {
     const { appPath } = await window.api.getAppInfo()
+    console.info('appPath1' + appPath)
     openMinapp({
       id: 'cherrystudio-releases',
       name: t('settings.about.releases.title'),
-      url: `file://${appPath}/resources/cherry-studio/releases.html?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`,
+      url: `file:///data/storage/el1/bundle/electron/resources/resfile/resources/resources/cherry-studio/releases.html?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`,
       logo: AppLogo
     })
   }
 
   const hasNewVersion = update?.info?.version && version ? compareVersions(update.info.version, version) > 0 : false
 
-  useEffect(() => {
-    runAsyncFunction(async () => {
-      const appInfo = await window.api.getAppInfo()
-      setVersion(appInfo.version)
-      setIsPortable(appInfo.isPortable)
-    })
-    setEarlyAccess(earlyAccess)
-    setAutoCheckUpdate(autoCheckUpdate)
-  }, [autoCheckUpdate, earlyAccess, setAutoCheckUpdate, setEarlyAccess])
+  // useEffect(() => {
+  //   runAsyncFunction(async () => {
+  //     const appInfo = await window.api.getAppInfo()
+  //     setVersion(appInfo.version)
+  //     setIsPortable(appInfo.isPortable)
+  //   })
+  //   setEarlyAccess(earlyAccess)
+  //   setAutoCheckUpdate(autoCheckUpdate)
+  // }, [autoCheckUpdate, earlyAccess, setAutoCheckUpdate, setEarlyAccess])
 
   return (
     <SettingContainer theme={theme}>
@@ -135,15 +134,15 @@ const AboutSettings: FC = () => {
             <VersionWrapper>
               <Title>{APP_NAME}</Title>
               <Description>{t('settings.about.description')}</Description>
-              <Tag
+              {/* <Tag
                 onClick={() => onOpenWebsite('https://github.com/CherryHQ/cherry-studio/releases')}
                 color="cyan"
                 style={{ marginTop: 8, cursor: 'pointer' }}>
                 v{version}
-              </Tag>
+              </Tag> */}
             </VersionWrapper>
           </Row>
-          {!isPortable && (
+          {/* {!isPortable && (
             <CheckUpdateButton
               onClick={onCheckUpdate}
               loading={update.checking}
@@ -154,9 +153,9 @@ const AboutSettings: FC = () => {
                   ? t('settings.about.checkUpdate.available')
                   : t('settings.about.checkUpdate')}
             </CheckUpdateButton>
-          )}
+          )} */}
         </AboutHeader>
-        {!isPortable && (
+        {/* {!isPortable && (
           <>
             <SettingDivider />
             <SettingRow>
@@ -171,7 +170,7 @@ const AboutSettings: FC = () => {
               </Tooltip>
             </SettingRow>
           </>
-        )}
+        )} */}
       </SettingGroup>
       {hasNewVersion && update.info && (
         <SettingGroup theme={theme}>

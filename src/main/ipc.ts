@@ -18,7 +18,6 @@ import CopilotService from './services/CopilotService'
 import { ExportService } from './services/ExportService'
 import FileService from './services/FileService'
 import FileStorage from './services/FileStorage'
-import KnowledgeService from './services/KnowledgeService'
 import mcpService from './services/MCPService'
 import NotificationService from './services/NotificationService'
 import * as NutstoreService from './services/NutstoreService'
@@ -337,13 +336,13 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   })
 
   // knowledge base
-  ipcMain.handle(IpcChannel.KnowledgeBase_Create, KnowledgeService.create)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Reset, KnowledgeService.reset)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Delete, KnowledgeService.delete)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Add, KnowledgeService.add)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Remove, KnowledgeService.remove)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Search, KnowledgeService.search)
-  ipcMain.handle(IpcChannel.KnowledgeBase_Rerank, KnowledgeService.rerank)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Create, KnowledgeService.create)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Reset, KnowledgeService.reset)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Delete, KnowledgeService.delete)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Add, KnowledgeService.add)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Remove, KnowledgeService.remove)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Search, KnowledgeService.search)
+  // ipcMain.handle(IpcChannel.KnowledgeBase_Rerank, KnowledgeService.rerank)
 
   // window
   ipcMain.handle(IpcChannel.Windows_SetMinimumSize, (_, width: number, height: number) => {

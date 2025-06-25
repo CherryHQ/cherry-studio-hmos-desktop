@@ -45,6 +45,16 @@ export const INITIAL_PROVIDERS: Provider[] = [
     enabled: true
   },
   {
+    id: 'localLargeModel',
+    name: 'localLargeModel',
+    type: 'localLargeModel',
+    apiKey: '',
+    apiHost: 'http://localhost:11434',
+    models: SYSTEM_MODELS.localLargeModel,
+    isSystem: true,
+    enabled: true
+  },
+  {
     id: 'aihubmix',
     name: 'AiHubMix',
     type: 'openai',

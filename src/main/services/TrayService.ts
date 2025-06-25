@@ -41,13 +41,15 @@ export class TrayService {
       const image = nativeImage.createFromPath(iconPath)
       const resizedImage = image.resize({ width: 16, height: 16 })
       tray.setImage(resizedImage)
+    } else {
+      tray.setImage(iconPath)
     }
 
     this.tray = tray
 
     this.updateContextMenu()
 
-    if (isLinux) {
+    if (isLinux || process.platform === 'ohos') {
       this.tray.setContextMenu(this.contextMenu)
     }
 
@@ -100,6 +102,11 @@ export class TrayService {
         label: trayLocale.quit,
         click: () => this.quit()
       }
+      // { type: 'separator' }, //鸿蒙不生效
+      // {
+      //   label: trayLocale.quit, //鸿蒙自带托盘退出
+      //   click: () => this.quit()
+      // }
     ].filter(Boolean) as MenuItemConstructorOptions[]
 
     this.contextMenu = Menu.buildFromTemplate(template)

@@ -728,6 +728,7 @@ export const SYSTEM_MODELS: Record<string, Model[]> = {
       group: '嵌入模型'
     }
   ],
+  localLargeModel: [],
   ollama: [],
   lmstudio: [],
   silicon: [
