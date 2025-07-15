@@ -6,7 +6,6 @@ import icon from '../../../build/tray_icon.png?asset'
 import iconDark from '../../../build/tray_icon_dark.png?asset'
 import iconLight from '../../../build/tray_icon_light.png?asset'
 import { ConfigKeys, configManager } from './ConfigManager'
-import selectionService from './SelectionService'
 import { windowService } from './WindowService'
 
 export class TrayService {
@@ -72,10 +71,10 @@ export class TrayService {
 
   private updateContextMenu() {
     const locale = locales[configManager.getLanguage()]
-    const { tray: trayLocale, selection: selectionLocale } = locale.translation
+    const { tray: trayLocale } = locale.translation //, selection: selectionLocale
 
     const quickAssistantEnabled = configManager.getEnableQuickAssistant()
-    const selectionAssistantEnabled = configManager.getSelectionAssistantEnabled()
+    // const selectionAssistantEnabled = configManager.getSelectionAssistantEnabled()
 
     const template = [
       {
@@ -85,23 +84,19 @@ export class TrayService {
       quickAssistantEnabled && {
         label: trayLocale.show_mini_window,
         click: () => windowService.showMiniWindow()
-      },
-      isWin && {
-        label: selectionLocale.name + (selectionAssistantEnabled ? ' - On' : ' - Off'),
-        // type: 'checkbox',
-        // checked: selectionAssistantEnabled,
-        click: () => {
-          if (selectionService) {
-            selectionService.toggleEnabled()
-            this.updateContextMenu()
-          }
-        }
-      },
-      { type: 'separator' },
-      {
-        label: trayLocale.quit,
-        click: () => this.quit()
       }
+      // isWin && {
+      //   label: selectionLocale.name + (selectionAssistantEnabled ? ' - On' : ' - Off'),
+      //   // type: 'checkbox',
+      //   // checked: selectionAssistantEnabled,
+      //   click: () => {
+      //     if (selectionService) {
+      //       selectionService.toggleEnabled()
+      //       this.updateContextMenu()
+      //     }
+      //   }
+      // },
+      // { type: 'separator' }
       // { type: 'separator' }, //鸿蒙不生效
       // {
       //   label: trayLocale.quit, //鸿蒙自带托盘退出
