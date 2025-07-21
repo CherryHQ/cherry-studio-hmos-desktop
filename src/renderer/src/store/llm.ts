@@ -44,16 +44,17 @@ export const INITIAL_PROVIDERS: Provider[] = [
     isSystem: true,
     enabled: true
   },
-  {
-    id: 'localLargeModel',
-    name: 'localLargeModel',
-    type: 'localLargeModel',
-    apiKey: '',
-    apiHost: 'http://localhost:11434',
-    models: SYSTEM_MODELS.localLargeModel,
-    isSystem: true,
-    enabled: true
-  },
+  // 隐藏本地大模型
+  // {
+  //   id: 'localLargeModel',
+  //   name: 'localLargeModel',
+  //   type: 'localLargeModel',
+  //   apiKey: '',
+  //   apiHost: 'http://localhost:11434',
+  //   models: SYSTEM_MODELS.localLargeModel,
+  //   isSystem: true,
+  //   enabled: true
+  // },
   {
     id: 'aihubmix',
     name: 'AiHubMix',
