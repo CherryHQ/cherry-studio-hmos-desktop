@@ -18,7 +18,7 @@ import path from 'node:path'
 
 import { RAGApplication, RAGApplicationBuilder } from '@cherrystudio/embedjs'
 import type { ExtractChunkData } from '@cherrystudio/embedjs-interfaces'
-import { LibSqlDb } from '@cherrystudio/embedjs-libsql'
+// import { LibSqlDb } from '@cherrystudio/embedjs-libsql'
 import { SitemapLoader } from '@cherrystudio/embedjs-loader-sitemap'
 import { WebLoader } from '@cherrystudio/embedjs-loader-web'
 import OcrProvider from '@main/knowledage/ocr/OcrProvider'
@@ -133,7 +133,7 @@ class KnowledgeService {
       ragApplication = await new RAGApplicationBuilder()
         .setModel('NO_MODEL')
         .setEmbeddingModel(embeddings)
-        .setVectorDatabase(new LibSqlDb({ path: path.join(this.storageDir, id) }))
+        // .setVectorDatabase(new LibSqlDb({ path: path.join(this.storageDir, id) }))
         .setSearchResultCount(documentCount || 30)
         .build()
     } catch (e) {

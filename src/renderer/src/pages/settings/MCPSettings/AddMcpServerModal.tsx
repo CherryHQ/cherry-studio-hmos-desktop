@@ -21,17 +21,7 @@ interface ParsedServerData extends MCPServer {
 }
 
 // 預設的 JSON 範例內容
-const initialJsonExample = `// 示例 JSON (stdio):
-// {
-//   "mcpServers": {
-//     "stdio-server-example": {
-//       "command": "npx",
-//       "args": ["-y", "mcp-server-example"]
-//     }
-//   }
-// }
-
-// 示例 JSON (sse):
+const initialJsonExample = `// 示例 JSON (sse):
 // {
 //   "mcpServers": {
 //     "sse-server-example": {

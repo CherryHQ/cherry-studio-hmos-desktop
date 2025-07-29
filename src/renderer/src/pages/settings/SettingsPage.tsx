@@ -12,7 +12,6 @@ import {
   Rocket,
   Settings2,
   SquareTerminal,
-  TextCursorInput,
   Zap
 } from 'lucide-react'
 // 导入useAppSelector
@@ -103,12 +102,12 @@ const SettingsPage: FC = () => {
               {t('settings.quickAssistant.title')}
             </MenuItem>
           </MenuItemLink>
-          <MenuItemLink to="/settings/selectionAssistant">
+          {/* <MenuItemLink to="/settings/selectionAssistant">
             <MenuItem className={isRoute('/settings/selectionAssistant')}>
               <TextCursorInput size={18} />
               {t('selection.name')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <MenuItemLink to="/settings/quickPhrase">
             <MenuItem className={isRoute('/settings/quickPhrase')}>
               <Zap size={18} />

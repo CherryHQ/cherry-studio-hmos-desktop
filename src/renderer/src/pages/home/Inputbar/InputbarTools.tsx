@@ -358,7 +358,7 @@ const InputbarTools = ({
             disabled={files.length > 0}
           />
         ),
-        condition: showKnowledgeIcon
+        condition: false // 隐藏知识库按钮
       },
       {
         key: 'mcp_tools',

@@ -32,6 +32,7 @@ import NewAPIProviderLogo from '@renderer/assets/images/providers/newapi.png'
 import NvidiaProviderLogo from '@renderer/assets/images/providers/nvidia.png'
 import O3ProviderLogo from '@renderer/assets/images/providers/o3.png'
 import OcoolAiProviderLogo from '@renderer/assets/images/providers/ocoolai.png'
+import localLargeModelLogo from '@renderer/assets/images/providers/ohos.png'
 import OllamaProviderLogo from '@renderer/assets/images/providers/ollama.png'
 import OpenAiProviderLogo from '@renderer/assets/images/providers/openai.png'
 import OpenRouterProviderLogo from '@renderer/assets/images/providers/openrouter.png'
@@ -55,6 +56,7 @@ import { TOKENFLUX_HOST } from './constant'
 
 const PROVIDER_LOGO_MAP = {
   ph8: Ph8ProviderLogo,
+  localLargeModel: localLargeModelLogo,
   '302ai': Ai302ProviderLogo,
   openai: OpenAiProviderLogo,
   silicon: SiliconFlowProviderLogo,
@@ -441,6 +443,16 @@ export const PROVIDER_CONFIG = {
       apiKey: 'https://console.groq.com/keys',
       docs: 'https://console.groq.com/docs/quickstart',
       models: 'https://console.groq.com/docs/models'
+    }
+  },
+  localLargeModel: {
+    api: {
+      url: 'http://localhost:11434'
+    },
+    websites: {
+      // official: 'https://ollama.com/',
+      // docs: 'https://github.com/ollama/ollama/tree/main/docs',
+      // models: 'https://ollama.com/library'
     }
   },
   ollama: {

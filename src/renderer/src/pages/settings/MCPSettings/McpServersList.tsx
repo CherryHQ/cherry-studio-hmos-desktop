@@ -195,7 +195,8 @@ const McpServersList: FC = () => {
             <ServerDescription>{server.description}</ServerDescription>
             <ServerFooter>
               <Tag color="processing" style={{ borderRadius: 20, margin: 0, fontWeight: 500 }}>
-                {t(`settings.mcp.types.${server.type || 'stdio'}`)}
+                {t(`settings.mcp.types.${server.type || 'sse'}`)}
+                {/* 默认找不到显示sse */}
               </Tag>
               {server.provider && (
                 <Tag color="success" style={{ borderRadius: 20, margin: 0, fontWeight: 500 }}>

@@ -621,7 +621,7 @@ export interface MCPConfigSample {
 export interface MCPServer {
   id: string
   name: string
-  type?: 'stdio' | 'sse' | 'inMemory' | 'streamableHttp'
+  type?: 'sse' | 'inMemory' | 'streamableHttp' | 'stdio'
   description?: string
   baseUrl?: string
   command?: string

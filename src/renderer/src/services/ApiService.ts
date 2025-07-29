@@ -707,7 +707,13 @@ export async function fetchGenerate({
 
 function hasApiKey(provider: Provider) {
   if (!provider) return false
-  if (provider.id === 'ollama' || provider.id === 'lmstudio' || provider.type === 'vertexai') return true
+  if (
+    provider.id === 'ollama' ||
+    provider.id === 'lmstudio' ||
+    provider.type === 'vertexai' ||
+    provider.id === 'localLargeModel'
+  )
+    return true
   return !isEmpty(provider.apiKey)
 }
 
@@ -745,7 +751,8 @@ export function checkApiProvider(provider: Provider): void {
     provider.id !== 'ollama' &&
     provider.id !== 'lmstudio' &&
     provider.type !== 'vertexai' &&
-    provider.id !== 'copilot'
+    provider.id !== 'copilot' &&
+    provider.id !== 'localLargeModel'
   ) {
     if (!provider.apiKey) {
       window.message.error({ content: i18n.t('message.error.enter.api.key'), key, style })

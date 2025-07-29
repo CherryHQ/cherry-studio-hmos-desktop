@@ -218,6 +218,10 @@ class McpService {
               throw new Error('Invalid server type')
             }
           } else if (server.command) {
+            //根据版本判断是否为鸿蒙系统，鸿蒙系统目前不支持stdio npx
+            if (process.platform == 'ohos') {
+              throw new Error('HarmonyOS does not support NPX')
+            }
             let cmd = server.command
 
             // For DXT servers, use resolved configuration with platform overrides and variable substitution
@@ -630,7 +634,12 @@ class McpService {
   }
 
   public async getInstallInfo() {
-    const dir = path.join(os.homedir(), '.cherrystudio', 'bin')
+    let dir = ''
+    if (process.platform == 'ohos') {
+      dir = path.join('/data/storage/el1/base/', '.cherrystudio', 'bin')
+    } else {
+      dir = path.join(os.homedir(), '.cherrystudio', 'bin')
+    }
     const uvName = await getBinaryName('uv')
     const bunName = await getBinaryName('bun')
     const uvPath = path.join(dir, uvName)
@@ -799,7 +808,12 @@ class McpService {
     try {
       const loginEnv = await getLoginShellEnvironment()
       const pathSeparator = process.platform === 'win32' ? ';' : ':'
-      const cherryBinPath = path.join(os.homedir(), '.cherrystudio', 'bin')
+      let cherryBinPath
+      if (process.platform == 'ohos') {
+        cherryBinPath = path.join('/data/storage/el1/base/', '.cherrystudio', 'bin')
+      } else {
+        cherryBinPath = path.join(os.homedir(), '.cherrystudio', 'bin')
+      }
       loginEnv.PATH = `${loginEnv.PATH}${pathSeparator}${cherryBinPath}`
       Logger.info('[MCP] Successfully fetched login shell environment variables:')
       return loginEnv
