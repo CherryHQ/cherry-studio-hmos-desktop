@@ -3,11 +3,18 @@ import IndicatorLight from '@renderer/components/IndicatorLight'
 import { HStack } from '@renderer/components/Layout'
 import { APP_NAME, AppLogo } from '@renderer/config/env'
 import { useTheme } from '@renderer/context/ThemeProvider'
+import { useMinappPopup } from '@renderer/hooks/useMinappPopup'
+import { useRuntime } from '@renderer/hooks/useRuntime'
+import { useSettings } from '@renderer/hooks/useSettings'
+import { useAppDispatch } from '@renderer/store'
+import { setUpdateState } from '@renderer/store/runtime'
 import { ThemeMode } from '@renderer/types'
-import { compareVersions } from '@renderer/utils'
-import { Avatar, Button, Progress, Row } from 'antd'
+import { compareVersions, runAsyncFunction } from '@renderer/utils'
+import { UpgradeChannel } from '@shared/config/constant'
+import { Avatar, Button, Progress, Radio, Row, Tag, Tooltip } from 'antd'
+import { debounce } from 'lodash'
 import { Bug, FileCheck, Github, Globe, Mail, Rss } from 'lucide-react'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Markdown from 'react-markdown'
 import { Link } from 'react-router-dom'
@@ -19,32 +26,36 @@ const AboutSettings: FC = () => {
   const [version, setVersion] = useState('')
   const [isPortable, setIsPortable] = useState(false)
   const { t } = useTranslation()
-  // const { autoCheckUpdate, setAutoCheckUpdate, earlyAccess, setEarlyAccess } = useSettings()
+  const { autoCheckUpdate, setAutoCheckUpdate, testPlan, setTestPlan, testChannel, setTestChannel } = useSettings()
   const { theme } = useTheme()
-  // const dispatch = useAppDispatch()
-  // const onCheckUpdate = debounce(
-  //     if (update.checking || update.downloading) {
-  //       return
-  //     }
+  const dispatch = useAppDispatch()
+  const { update } = useRuntime()
+  const { openMinapp } = useMinappPopup()
 
-  //     if (update.downloaded) {
-  //       window.api.showUpdateDialog()
-  //       return
-  //     }
+  const onCheckUpdate = debounce(
+    async () => {
+      if (update.checking || update.downloading) {
+        return
+      }
 
-  //     dispatch(setUpdateState({ checking: true }))
+      if (update.downloaded) {
+        window.api.showUpdateDialog()
+        return
+      }
 
-  //     try {
-  //       await window.api.checkForUpdate()
-  //     } catch (error) {
-  //       window.message.error(t('settings.about.updateError'))
-  //     }
+      dispatch(setUpdateState({ checking: true }))
 
-  //     dispatch(setUpdateState({ checking: false }))
-  //   },
-  //   2000,
-  //   { leading: true, trailing: false }
-  // )
+      try {
+        await window.api.checkForUpdate()
+      } catch (error) {
+        window.message.error(t('settings.about.updateError'))
+      }
+
+      dispatch(setUpdateState({ checking: false }))
+    },
+    2000,
+    { leading: true, trailing: false }
+  )
 
   const onOpenWebsite = (url: string) => {
     window.api.openWebsite(url)
@@ -65,38 +76,99 @@ const AboutSettings: FC = () => {
 
   const showLicense = async () => {
     const { appPath } = await window.api.getAppInfo()
-    console.info('appPath2' + appPath)
-
     openMinapp({
       id: 'cherrystudio-license',
       name: t('settings.about.license.title'),
-      url: `file:///data/storage/el1/bundle/electron/resources/resfile/resources/resources/license.html`,
+      url: `file://${appPath}/resources/cherry-studio/license.html`,
       logo: AppLogo
     })
   }
-  //修改。路径
+
   const showReleases = async () => {
     const { appPath } = await window.api.getAppInfo()
-    console.info('appPath1' + appPath)
     openMinapp({
       id: 'cherrystudio-releases',
       name: t('settings.about.releases.title'),
-      url: `file:///data/storage/el1/bundle/electron/resources/resfile/resources/resources/cherry-studio/releases.html?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`,
+      url: `file://${appPath}/resources/cherry-studio/releases.html?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`,
       logo: AppLogo
     })
   }
 
   const hasNewVersion = update?.info?.version && version ? compareVersions(update.info.version, version) > 0 : false
 
-  // useEffect(() => {
-  //   runAsyncFunction(async () => {
-  //     const appInfo = await window.api.getAppInfo()
-  //     setVersion(appInfo.version)
-  //     setIsPortable(appInfo.isPortable)
-  //   })
-  //   setEarlyAccess(earlyAccess)
-  //   setAutoCheckUpdate(autoCheckUpdate)
-  // }, [autoCheckUpdate, earlyAccess, setAutoCheckUpdate, setEarlyAccess])
+  const currentChannelByVersion =
+    [
+      { pattern: `-${UpgradeChannel.BETA}.`, channel: UpgradeChannel.BETA },
+      { pattern: `-${UpgradeChannel.RC}.`, channel: UpgradeChannel.RC }
+    ].find(({ pattern }) => version.includes(pattern))?.channel || UpgradeChannel.LATEST
+
+  const handleTestChannelChange = async (value: UpgradeChannel) => {
+    if (testPlan && currentChannelByVersion !== UpgradeChannel.LATEST && value !== currentChannelByVersion) {
+      window.message.warning(t('settings.general.test_plan.version_channel_not_match'))
+    }
+    setTestChannel(value)
+    // Clear update info when switching upgrade channel
+    dispatch(
+      setUpdateState({
+        available: false,
+        info: null,
+        downloaded: false,
+        checking: false,
+        downloading: false,
+        downloadProgress: 0
+      })
+    )
+  }
+
+  // Get available test version options based on current version
+  const getAvailableTestChannels = () => {
+    return [
+      {
+        tooltip: t('settings.general.test_plan.rc_version_tooltip'),
+        label: t('settings.general.test_plan.rc_version'),
+        value: UpgradeChannel.RC
+      },
+      {
+        tooltip: t('settings.general.test_plan.beta_version_tooltip'),
+        label: t('settings.general.test_plan.beta_version'),
+        value: UpgradeChannel.BETA
+      }
+    ]
+  }
+
+  const handleSetTestPlan = (value: boolean) => {
+    setTestPlan(value)
+    dispatch(
+      setUpdateState({
+        available: false,
+        info: null,
+        downloaded: false,
+        checking: false,
+        downloading: false,
+        downloadProgress: 0
+      })
+    )
+
+    if (value === true) {
+      setTestChannel(getTestChannel())
+    }
+  }
+
+  const getTestChannel = () => {
+    if (testChannel === UpgradeChannel.LATEST) {
+      return UpgradeChannel.RC
+    }
+    return testChannel
+  }
+
+  useEffect(() => {
+    runAsyncFunction(async () => {
+      const appInfo = await window.api.getAppInfo()
+      setVersion(appInfo.version)
+      setIsPortable(appInfo.isPortable)
+    })
+    setAutoCheckUpdate(autoCheckUpdate)
+  }, [autoCheckUpdate, setAutoCheckUpdate])
 
   return (
     <SettingContainer theme={theme}>
@@ -128,12 +200,12 @@ const AboutSettings: FC = () => {
             <VersionWrapper>
               <Title>{APP_NAME}</Title>
               <Description>{t('settings.about.description')}</Description>
-              {/* <Tag
+              <Tag
                 onClick={() => onOpenWebsite('https://github.com/CherryHQ/cherry-studio/releases')}
                 color="cyan"
                 style={{ marginTop: 8, cursor: 'pointer' }}>
                 v{version}
-              </Tag> */}
+              </Tag>
             </VersionWrapper>
           </Row>
           {/* {!isPortable && (
@@ -149,9 +221,9 @@ const AboutSettings: FC = () => {
             </CheckUpdateButton>
           )} */}
         </AboutHeader>
-        {/* {!isPortable && (
+        {!isPortable && (
           <>
-            <SettingDivider />
+            {/* <SettingDivider />
             <SettingRow>
               <SettingRowTitle>{t('settings.general.auto_check_update.title')}</SettingRowTitle>
               <Switch value={autoCheckUpdate} onChange={(v) => setAutoCheckUpdate(v)} />
@@ -162,7 +234,7 @@ const AboutSettings: FC = () => {
               <Tooltip title={t('settings.general.test_plan.tooltip')} trigger={['hover', 'focus']}>
                 <Switch value={testPlan} onChange={(v) => handleSetTestPlan(v)} />
               </Tooltip>
-            </SettingRow>
+            </SettingRow> */}
             {testPlan && (
               <>
                 <SettingDivider />
@@ -183,7 +255,7 @@ const AboutSettings: FC = () => {
               </>
             )}
           </>
-        )} */}
+        )}
       </SettingGroup>
       {hasNewVersion && update.info && (
         <SettingGroup theme={theme}>

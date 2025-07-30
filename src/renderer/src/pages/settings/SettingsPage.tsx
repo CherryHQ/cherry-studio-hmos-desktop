@@ -1,7 +1,6 @@
 import { Navbar, NavbarCenter } from '@renderer/components/app/Navbar'
 import ModelSettings from '@renderer/pages/settings/ModelSettings/ModelSettings'
 import {
-  Brain,
   Cloud,
   Command,
   HardDrive,
@@ -84,12 +83,12 @@ const SettingsPage: FC = () => {
               {t('settings.tool.title')}
             </MenuItem>
           </MenuItemLink>
-          <MenuItemLink to="/settings/memory">
+          {/* <MenuItemLink to="/settings/memory">
             <MenuItem className={isRoute('/settings/memory')}>
               <Brain size={18} />
               {t('memory.title')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <MenuItemLink to="/settings/shortcut">
             <MenuItem className={isRoute('/settings/shortcut')}>
               <Command size={18} />
