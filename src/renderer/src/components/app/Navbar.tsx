@@ -11,7 +11,7 @@ export const Navbar: FC<Props> = ({ children, ...props }) => {
   const backgroundColor = useNavBackgroundColor()
 
   return (
-    <NavbarContainer {...props} style={{ backgroundColor }}>
+    <NavbarContainer {...props} style={{ backgroundColor, paddingRight: 125 }}>
       {children}
     </NavbarContainer>
   )
