@@ -18,7 +18,7 @@ import path from 'node:path'
 
 import { RAGApplication, RAGApplicationBuilder } from '@cherrystudio/embedjs'
 import type { ExtractChunkData } from '@cherrystudio/embedjs-interfaces'
-import { LibSqlDb } from '@cherrystudio/embedjs-libsql'
+// import { LibSqlDb } from '@cherrystudio/embedjs-libsql'
 import { SitemapLoader } from '@cherrystudio/embedjs-loader-sitemap'
 import { WebLoader } from '@cherrystudio/embedjs-loader-web'
 import { loggerService } from '@logger'

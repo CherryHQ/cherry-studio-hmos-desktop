@@ -1,7 +1,6 @@
 import { Navbar, NavbarCenter } from '@renderer/components/app/Navbar'
 import ModelSettings from '@renderer/pages/settings/ModelSettings/ModelSettings'
 import {
-  Brain,
   Cloud,
   Command,
   HardDrive,
@@ -12,7 +11,6 @@ import {
   Rocket,
   Settings2,
   SquareTerminal,
-  TextCursorInput,
   Zap
 } from 'lucide-react'
 // 导入useAppSelector
@@ -77,12 +75,12 @@ const SettingsPage: FC = () => {
               {t('settings.mcp.title')}
             </MenuItem>
           </MenuItemLink>
-          <MenuItemLink to="/settings/memory">
+          {/* <MenuItemLink to="/settings/memory">
             <MenuItem className={isRoute('/settings/memory')}>
               <Brain size={18} />
               {t('memory.title')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <MenuItemLink to="/settings/tool">
             <MenuItem className={isRoute('/settings/tool')}>
               <PencilRuler size={18} />
@@ -101,12 +99,12 @@ const SettingsPage: FC = () => {
               {t('settings.quickAssistant.title')}
             </MenuItem>
           </MenuItemLink>
-          <MenuItemLink to="/settings/selectionAssistant">
+          {/* <MenuItemLink to="/settings/selectionAssistant">
             <MenuItem className={isRoute('/settings/selectionAssistant')}>
               <TextCursorInput size={18} />
               {t('selection.name')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <MenuItemLink to="/settings/quickPhrase">
             <MenuItem className={isRoute('/settings/quickPhrase')}>
               <Zap size={18} />

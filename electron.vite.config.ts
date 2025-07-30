@@ -13,7 +13,25 @@ const isProd = process.env.NODE_ENV === 'production'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin(), ...visualizerPlugin('main')],
+    plugins: [
+      externalizeDepsPlugin({
+        exclude: [
+          '@cherrystudio/embedjs',
+          '@cherrystudio/embedjs-openai',
+          '@cherrystudio/embedjs-loader-web',
+          '@cherrystudio/embedjs-loader-markdown',
+          '@cherrystudio/embedjs-loader-msoffice',
+          '@cherrystudio/embedjs-loader-xml',
+          '@cherrystudio/embedjs-loader-pdf',
+          '@cherrystudio/embedjs-loader-sitemap',
+          '@cherrystudio/embedjs-libsql',
+          '@cherrystudio/embedjs-loader-image',
+          'p-queue',
+          'webdav'
+        ]
+      }),
+      ...visualizerPlugin('main')
+    ],
     resolve: {
       alias: {
         '@main': resolve('src/main'),

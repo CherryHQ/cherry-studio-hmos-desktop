@@ -8,7 +8,6 @@ import {
   YuqueOutlined
 } from '@ant-design/icons'
 import DividerWithText from '@renderer/components/DividerWithText'
-import { NutstoreIcon } from '@renderer/components/Icons/NutstoreIcons'
 import { HStack } from '@renderer/components/Layout'
 import ListItem from '@renderer/components/ListItem'
 import BackupPopup from '@renderer/components/Popups/BackupPopup'
@@ -91,7 +90,7 @@ const DataSettings: FC = () => {
     { key: 'divider_1', isDivider: true, text: t('settings.data.divider.cloud_storage') },
     { key: 'local_backup', title: 'settings.data.local.title', icon: <FolderCog size={16} /> },
     { key: 'webdav', title: 'settings.data.webdav.title', icon: <CloudSyncOutlined style={{ fontSize: 16 }} /> },
-    { key: 'nutstore', title: 'settings.data.nutstore.title', icon: <NutstoreIcon /> },
+    // { key: 'nutstore', title: 'settings.data.nutstore.title', icon: <NutstoreIcon /> },
     { key: 's3', title: 'settings.data.s3.title', icon: <CloudServerOutlined style={{ fontSize: 16 }} /> },
     { key: 'divider_2', isDivider: true, text: t('settings.data.divider.export_settings') },
     {

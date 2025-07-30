@@ -10,7 +10,6 @@ import { useNavbarPosition } from './hooks/useSettings'
 import AgentsPage from './pages/agents/AgentsPage'
 import FilesPage from './pages/files/FilesPage'
 import HomePage from './pages/home/HomePage'
-import KnowledgePage from './pages/knowledge/KnowledgePage'
 import LaunchpadPage from './pages/launchpad/LaunchpadPage'
 import MinAppsPage from './pages/minapps/MinAppsPage'
 import PaintingsRoutePage from './pages/paintings/PaintingsRoutePage'
@@ -28,7 +27,7 @@ const Router: FC = () => {
         <Route path="/paintings/*" element={<PaintingsRoutePage />} />
         <Route path="/translate" element={<TranslatePage />} />
         <Route path="/files" element={<FilesPage />} />
-        <Route path="/knowledge" element={<KnowledgePage />} />
+        {/* <Route path="/knowledge" element={<KnowledgePage />} /> */}
         <Route path="/apps" element={<MinAppsPage />} />
         <Route path="/settings/*" element={<SettingsPage />} />
         <Route path="/launchpad" element={<LaunchpadPage />} />

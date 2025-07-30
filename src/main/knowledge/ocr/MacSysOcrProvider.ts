@@ -2,7 +2,6 @@ import { loggerService } from '@logger'
 import { isMac } from '@main/constant'
 import { FileMetadata, OcrProvider } from '@types'
 import * as fs from 'fs'
-import * as path from 'path'
 import { TextItem } from 'pdfjs-dist/types/src/display/api'
 
 import BaseOcrProvider from './BaseOcrProvider'
@@ -88,38 +87,35 @@ export default class MacSysOcrProvider extends BaseOcrProvider {
     logger.info(`Starting OCR process for file: ${file.name}`)
     if (file.ext === '.pdf') {
       try {
-        const { pdf } = await import('@cherrystudio/pdf-to-img-napi')
-        const pdfBuffer = await fs.promises.readFile(file.path)
-        const results = await pdf(pdfBuffer, {
-          scale: 2
-        })
-        const totalPages = results.length
-
-        const baseDir = path.dirname(file.path)
-        const baseName = path.basename(file.path, path.extname(file.path))
-        const txtFileName = `${baseName}.txt`
-        const txtFilePath = path.join(baseDir, txtFileName)
-
-        const writeStream = fs.createWriteStream(txtFilePath)
-        await this.processPages(results, totalPages, sourceId, writeStream)
-
-        await new Promise<void>((resolve, reject) => {
-          writeStream.end(() => {
-            logger.info(`OCR process completed successfully for ${file.origin_name}`)
-            resolve()
-          })
-          writeStream.on('error', reject)
-        })
-        const movedPaths = this.moveToAttachmentsDir(file.id, [txtFilePath])
-        return {
-          processedFile: {
-            ...file,
-            name: txtFileName,
-            path: movedPaths[0],
-            ext: '.txt',
-            size: fs.statSync(movedPaths[0]).size
-          }
-        }
+        // // const { pdf } = await import('@cherrystudio/pdf-to-img-napi')
+        // const pdfBuffer = await fs.promises.readFile(file.path)
+        // // const results = await pdf(pdfBuffer, {
+        // //   scale: 2
+        // // })
+        // const totalPages = results.length
+        // const baseDir = path.dirname(file.path)
+        // const baseName = path.basename(file.path, path.extname(file.path))
+        // const txtFileName = `${baseName}.txt`
+        // const txtFilePath = path.join(baseDir, txtFileName)
+        // const writeStream = fs.createWriteStream(txtFilePath)
+        // await this.processPages(results, totalPages, sourceId, writeStream)
+        // await new Promise<void>((resolve, reject) => {
+        //   writeStream.end(() => {
+        //     logger.info(`OCR process completed successfully for ${file.origin_name}`)
+        //     resolve()
+        //   })
+        //   writeStream.on('error', reject)
+        // })
+        // const movedPaths = this.moveToAttachmentsDir(file.id, [txtFilePath])
+        // return {
+        //   processedFile: {
+        //     ...file,
+        //     name: txtFileName,
+        //     path: movedPaths[0],
+        //     ext: '.txt',
+        //     size: fs.statSync(movedPaths[0]).size
+        //   }
+        // }
       } catch (error) {
         logger.error('Error during OCR process:', error as Error)
         throw error

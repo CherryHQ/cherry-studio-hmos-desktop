@@ -6,11 +6,9 @@ import db from '@renderer/databases'
 import i18n from '@renderer/i18n'
 import KnowledgeQueue from '@renderer/queue/KnowledgeQueue'
 import MemoryService from '@renderer/services/MemoryService'
-import { useAppDispatch } from '@renderer/store'
-import { useAppSelector } from '@renderer/store'
+import { useAppDispatch, useAppSelector } from '@renderer/store'
 import { selectMemoryConfig } from '@renderer/store/memory'
-import { setAvatar, setFilesPath, setResourcesPath, setUpdateState } from '@renderer/store/runtime'
-import { delay, runAsyncFunction } from '@renderer/utils'
+import { setAvatar, setFilesPath, setResourcesPath } from '@renderer/store/runtime'
 import { defaultLanguage } from '@shared/config/constant'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect } from 'react'
@@ -25,7 +23,7 @@ const logger = loggerService.withContext('useAppInit')
 
 export function useAppInit() {
   const dispatch = useAppDispatch()
-  const { proxyUrl, language, windowStyle, autoCheckUpdate, proxyMode, customCss, enableDataCollection } = useSettings()
+  const { proxyUrl, language, windowStyle, proxyMode, customCss, enableDataCollection } = useSettings()
   const { minappShow } = useRuntime()
   const { setDefaultModel, setTopicNamingModel, setTranslateModel } = useDefaultModel()
   const avatar = useLiveQuery(() => db.settings.get('image://avatar'))
@@ -56,16 +54,16 @@ export function useAppInit() {
     avatar?.value && dispatch(setAvatar(avatar.value))
   }, [avatar, dispatch])
 
-  useEffect(() => {
-    runAsyncFunction(async () => {
-      const { isPackaged } = await window.api.getAppInfo()
-      if (isPackaged && autoCheckUpdate) {
-        await delay(2)
-        const { updateInfo } = await window.api.checkForUpdate()
-        dispatch(setUpdateState({ info: updateInfo }))
-      }
-    })
-  }, [dispatch, autoCheckUpdate])
+  // useEffect(() => {
+  //   runAsyncFunction(async () => {
+  //     const { isPackaged } = await window.api.getAppInfo()
+  //     if (isPackaged && autoCheckUpdate) {
+  //       await delay(2)
+  //       const { updateInfo } = await window.api.checkForUpdate()
+  //       dispatch(setUpdateState({ info: updateInfo }))
+  //     }
+  //   })
+  // }, [dispatch, autoCheckUpdate])
 
   useEffect(() => {
     if (proxyMode === 'system') {

@@ -159,25 +159,28 @@ const MainMenus: FC = () => {
     files: '/files'
   }
 
-  return sidebarIcons.visible.map((icon) => {
-    const path = pathMap[icon]
-    const isActive = path === '/' ? isRoute(path) : isRoutes(path)
+  // 过滤掉知识库图标
+  return sidebarIcons.visible
+    .filter((icon) => icon !== 'knowledge')
+    .map((icon) => {
+      const path = pathMap[icon]
+      const isActive = path === '/' ? isRoute(path) : isRoutes(path)
 
-    return (
-      <Tooltip key={icon} title={t(`${icon}.title`)} mouseEnterDelay={0.8} placement="right">
-        <StyledLink
-          onClick={async () => {
-            hideMinappPopup()
-            await modelGenerating()
-            navigate(path)
-          }}>
-          <Icon theme={theme} className={isActive}>
-            {iconMap[icon]}
-          </Icon>
-        </StyledLink>
-      </Tooltip>
-    )
-  })
+      return (
+        <Tooltip key={icon} title={t(`${icon}.title`)} mouseEnterDelay={0.8} placement="right">
+          <StyledLink
+            onClick={async () => {
+              hideMinappPopup()
+              await modelGenerating()
+              navigate(path)
+            }}>
+            <Icon theme={theme} className={isActive}>
+              {iconMap[icon]}
+            </Icon>
+          </StyledLink>
+        </Tooltip>
+      )
+    })
 }
 
 const Container = styled.div<{ $isFullscreen: boolean }>`

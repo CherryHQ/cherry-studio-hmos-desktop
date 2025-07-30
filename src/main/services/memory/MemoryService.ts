@@ -1,5 +1,5 @@
-import { Client, createClient } from '@libsql/client'
 import { loggerService } from '@logger'
+// import { Client, createClient } from '@libsql/client'
 import Embeddings from '@main/knowledge/embeddings/Embeddings'
 import type {
   AddMemoryOptions,
@@ -44,7 +44,7 @@ export interface SearchResult {
 
 export class MemoryService {
   private static instance: MemoryService | null = null
-  private db: Client | null = null
+  private db: null = null
   private isInitialized = false
   private embeddings: Embeddings | null = null
   private config: MemoryConfig | null = null
@@ -82,10 +82,11 @@ export class MemoryService {
       const userDataPath = app.getPath('userData')
       const dbPath = path.join(userDataPath, 'memories.db')
 
-      this.db = createClient({
-        url: `file:${dbPath}`,
-        intMode: 'number'
-      })
+      this.db = ''
+      // createClient({
+      //   url: `file:${dbPath}`,
+      //   intMode: 'number'
+      // })
 
       // Create tables
       await this.createTables()

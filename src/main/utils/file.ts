@@ -104,7 +104,12 @@ export function getFilesDir() {
 }
 
 export function getConfigDir() {
-  return path.join(os.homedir(), '.cherrystudio', 'config')
+  //根据版本判断是否为鸿蒙系统，鸿蒙系统路径有区别
+  if (process.platform == 'ohos') {
+    return path.join('/data/storage/el1/base/', '.cherrystudio', 'config')
+  } else {
+    return path.join(os.homedir(), '.cherrystudio', 'config')
+  }
 }
 
 export function getCacheDir() {
