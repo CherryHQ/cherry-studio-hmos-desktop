@@ -252,7 +252,7 @@ export const initialState: SettingsState = {
   pasteLongTextAsFile: false,
   pasteLongTextThreshold: 1500,
   clickAssistantToShowTopic: true,
-  autoCheckUpdate: true,
+  autoCheckUpdate: false,
   testPlan: false,
   testChannel: UpgradeChannel.LATEST,
   renderInputMessageAsMarkdown: false,
@@ -399,7 +399,7 @@ export const initialState: SettingsState = {
   // Developer mode
   enableDeveloperMode: false,
   // UI
-  navbarPosition: 'top',
+  navbarPosition: 'left',
   // API Server
   apiServer: {
     enabled: false,

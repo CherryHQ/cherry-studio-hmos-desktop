@@ -142,7 +142,7 @@ const MCPToolsButton: FC<Props> = ({ ref, setInputValue, resizeTextArea, Toolbar
     (server: MCPServer) => {
       const update = { ...assistant }
       if (assistantMcpServers.some((s) => s.id === server.id)) {
-        update.mcpServers = mcpServers.filter((s) => s.id !== server.id)
+        update.mcpServers = mcpServers.filter((s) => s.id !== server.id && server.type !== 'inMemory')
       } else {
         update.mcpServers = [...mcpServers, server]
       }
@@ -196,13 +196,15 @@ const MCPToolsButton: FC<Props> = ({ ref, setInputValue, resizeTextArea, Toolbar
   )
 
   const menuItems = useMemo(() => {
-    const newList: QuickPanelListItem[] = activedMcpServers.map((server) => ({
-      label: server.name,
-      description: server.description || server.baseUrl,
-      icon: <Hammer />,
-      action: () => EventEmitter.emit('mcp-server-select', server),
-      isSelected: assistantMcpServers.some((s) => s.id === server.id)
-    }))
+    const newList: QuickPanelListItem[] = activedMcpServers
+      .filter((server) => server.type != 'inMemory' && server.type != 'stdio')
+      .map((server) => ({
+        label: server.name,
+        description: server.description || server.baseUrl,
+        icon: <Hammer />,
+        action: () => EventEmitter.emit('mcp-server-select', server),
+        isSelected: assistantMcpServers.some((s) => s.id === server.id)
+      }))
 
     newList.push({
       label: t('settings.mcp.addServer.label') + '...',

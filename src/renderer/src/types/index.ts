@@ -262,7 +262,8 @@ export type Provider = {
 }
 
 export const SystemProviderIds = {
-  cherryin: 'cherryin',
+  // cherryin: 'cherryin',
+  hmos: 'hmos',
   silicon: 'silicon',
   aihubmix: 'aihubmix',
   ocoolai: 'ocoolai',
@@ -326,7 +327,6 @@ export const isSystemProviderId = (id: string): id is SystemProviderId => {
 export type SystemProvider = Provider & {
   id: SystemProviderId
   isSystem: true
-  apiOptions?: never
 }
 
 /**
@@ -348,6 +348,7 @@ export type ProviderType =
   | 'vertexai'
   | 'mistral'
   | 'aws-bedrock'
+  | 'hmos'
 
 export type ModelType = 'text' | 'vision' | 'embedding' | 'reasoning' | 'function_calling' | 'web_search' | 'rerank'
 

@@ -2106,6 +2106,9 @@ const migrateConfig = {
       if (state.nutstore && state.nutstore.nutstoreMaxBackups === undefined) {
         state.nutstore.nutstoreMaxBackups = 0
       }
+      addProvider(state, 'hmos')
+      moveProvider(state.llm.providers, 'hmos', 2)
+
       return state
     } catch (error) {
       logger.error('migrate 130 error', error as Error)
@@ -2215,8 +2218,8 @@ const migrateConfig = {
   },
   '139': (state: RootState) => {
     try {
-      addProvider(state, 'cherryin')
-      state.llm.providers = moveProvider(state.llm.providers, 'cherryin', 1)
+      // addProvider(state, 'cherryin')
+      // state.llm.providers = moveProvider(state.llm.providers, 'cherryin', 1)
 
       const zhipuProvider = state.llm.providers.find((p) => p.id === 'zhipu')
 

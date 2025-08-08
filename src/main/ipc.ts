@@ -31,7 +31,7 @@ import { openTraceWindow, setTraceWindowTitle } from './services/NodeTraceServic
 import NotificationService from './services/NotificationService'
 import * as NutstoreService from './services/NutstoreService'
 import ObsidianVaultService from './services/ObsidianVaultService'
-import { ocrService } from './services/ocr/OcrService'
+// import { ocrService } from './services/ocr/OcrService'
 import { proxyManager } from './services/ProxyManager'
 import { pythonService } from './services/PythonService'
 import { FileServiceManager } from './services/remotefile/FileServiceManager'
@@ -525,7 +525,6 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
     }
   })
 
-  // knowledge base
   ipcMain.handle(IpcChannel.KnowledgeBase_Create, KnowledgeService.create.bind(KnowledgeService))
   ipcMain.handle(IpcChannel.KnowledgeBase_Reset, KnowledgeService.reset.bind(KnowledgeService))
   ipcMain.handle(IpcChannel.KnowledgeBase_Delete, KnowledgeService.delete.bind(KnowledgeService))
@@ -752,7 +751,7 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   ipcMain.handle(IpcChannel.CodeTools_Run, codeToolsService.run)
 
   // OCR
-  ipcMain.handle(IpcChannel.OCR_ocr, (_, ...args: Parameters<typeof ocrService.ocr>) => ocrService.ocr(...args))
+  // ipcMain.handle(IpcChannel.OCR_ocr, (_, ...args: Parameters<typeof ocrService.ocr>) => ocrService.ocr(...args))
 
   // CherryIN
   ipcMain.handle(IpcChannel.Cherryin_GetSignature, (_, params) => generateSignature(params))

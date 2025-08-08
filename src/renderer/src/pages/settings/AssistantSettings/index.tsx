@@ -2,7 +2,6 @@ import { HStack } from '@renderer/components/Layout'
 import { TopView } from '@renderer/components/TopView'
 import { useAgent } from '@renderer/hooks/useAgents'
 import { useAssistant } from '@renderer/hooks/useAssistant'
-import { useSidebarIconShow } from '@renderer/hooks/useSidebarIcon'
 import { Assistant } from '@renderer/types'
 import { Menu, Modal } from 'antd'
 import { useState } from 'react'
@@ -47,7 +46,7 @@ const AssistantSettingPopupContainer: React.FC<Props> = ({ resolve, tab, ...prop
   const updateAssistant = isAgent ? _useAgent.updateAgent : _useAssistant.updateAssistant
   const updateAssistantSettings = isAgent ? _useAgent.updateAgentSettings : _useAssistant.updateAssistantSettings
 
-  const showKnowledgeIcon = useSidebarIconShow('knowledge')
+  const showKnowledgeIcon = false
 
   const onOk = () => {
     setOpen(false)

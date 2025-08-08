@@ -7,8 +7,6 @@ import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
-import InstallNpxUv from './InstallNpxUv'
-
 export const McpSettingsNavbar = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -25,7 +23,7 @@ export const McpSettingsNavbar = () => {
           style={{ fontSize: 13, height: 28, borderRadius: 20 }}>
           {t('settings.mcp.searchNpx')}
         </Button>
-        <InstallNpxUv mini />
+        {/* <InstallNpxUv mini /> */}
       </HStack>
     </NavbarRight>
   )

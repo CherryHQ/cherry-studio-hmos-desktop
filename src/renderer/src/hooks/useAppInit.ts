@@ -1,4 +1,5 @@
 import { loggerService } from '@logger'
+import PrivacyPopup from '@renderer/components/Popups/PrivacyPopup'
 import { isMac } from '@renderer/config/constant'
 import { isLocalAi } from '@renderer/config/env'
 import { useTheme } from '@renderer/context/ThemeProvider'
@@ -6,12 +7,9 @@ import db from '@renderer/databases'
 import i18n from '@renderer/i18n'
 import KnowledgeQueue from '@renderer/queue/KnowledgeQueue'
 import MemoryService from '@renderer/services/MemoryService'
-import { useAppDispatch } from '@renderer/store'
-import { useAppSelector } from '@renderer/store'
-import { handleSaveData } from '@renderer/store'
+import { handleSaveData, useAppDispatch, useAppSelector } from '@renderer/store'
 import { selectMemoryConfig } from '@renderer/store/memory'
-import { setAvatar, setFilesPath, setResourcesPath, setUpdateState } from '@renderer/store/runtime'
-import { delay, runAsyncFunction } from '@renderer/utils'
+import { setAvatar, setFilesPath, setResourcesPath } from '@renderer/store/runtime'
 import { defaultLanguage } from '@shared/config/constant'
 import { IpcChannel } from '@shared/IpcChannel'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -27,22 +25,14 @@ const logger = loggerService.withContext('useAppInit')
 
 export function useAppInit() {
   const dispatch = useAppDispatch()
-  const {
-    proxyUrl,
-    proxyBypassRules,
-    language,
-    windowStyle,
-    autoCheckUpdate,
-    proxyMode,
-    customCss,
-    enableDataCollection
-  } = useSettings()
-  const { isLeftNavbar } = useNavbarPosition()
+  const { proxyUrl, proxyBypassRules, language, windowStyle, proxyMode, customCss, enableDataCollection } =
+    useSettings()
   const { minappShow } = useRuntime()
   const { setDefaultModel, setQuickModel, setTranslateModel } = useDefaultModel()
   const avatar = useLiveQuery(() => db.settings.get('image://avatar'))
   const { theme } = useTheme()
   const memoryConfig = useAppSelector(selectMemoryConfig)
+  const { isLeftNavbar } = useNavbarPosition()
 
   useEffect(() => {
     document.getElementById('spinner')?.remove()
@@ -74,16 +64,16 @@ export function useAppInit() {
     avatar?.value && dispatch(setAvatar(avatar.value))
   }, [avatar, dispatch])
 
-  useEffect(() => {
-    runAsyncFunction(async () => {
-      const { isPackaged } = await window.api.getAppInfo()
-      if (isPackaged && autoCheckUpdate) {
-        await delay(2)
-        const { updateInfo } = await window.api.checkForUpdate()
-        dispatch(setUpdateState({ info: updateInfo }))
-      }
-    })
-  }, [dispatch, autoCheckUpdate])
+  // useEffect(() => {
+  //   runAsyncFunction(async () => {
+  //     const { isPackaged } = await window.api.getAppInfo()
+  //     if (isPackaged && autoCheckUpdate) {
+  //       await delay(2)
+  //       const { updateInfo } = await window.api.checkForUpdate()
+  //       dispatch(setUpdateState({ info: updateInfo }))
+  //     }
+  //   })
+  // }, [dispatch, autoCheckUpdate])
 
   useEffect(() => {
     if (proxyMode === 'system') {
@@ -158,4 +148,8 @@ export function useAppInit() {
       logger.error('Failed to update memory config:', error)
     })
   }, [memoryConfig])
+
+  useEffect(() => {
+    PrivacyPopup.show()
+  }, [])
 }

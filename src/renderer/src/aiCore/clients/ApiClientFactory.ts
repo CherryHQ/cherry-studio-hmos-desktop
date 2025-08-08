@@ -63,6 +63,13 @@ export class ApiClientFactory {
     }
 
     // 然后检查标准的 Provider Type
+    if (provider.id === 'hmos') {
+      logger.debug(`[ApiClientFactory] Creating HMOS for provider: ${provider.id}`)
+      instance = new OpenAIAPIClient(provider) as BaseApiClient
+      return instance
+    }
+
+    // 然后检查标准的provider type
     switch (provider.type) {
       case 'openai':
         instance = new OpenAIAPIClient(provider) as BaseApiClient

@@ -1,6 +1,6 @@
 import Tesseract from 'tesseract.js'
 
-import { FileMetadata, ImageFileMetadata, isImageFileMetadata, TranslateLanguageCode } from '.'
+import { FileMetadata, ImageFileMetadata, TranslateLanguageCode } from '.'
 
 export const BuiltinOcrProviderIds = {
   tesseract: 'tesseract',
@@ -127,7 +127,8 @@ export const isImageOcrProvider = (p: OcrProvider): p is ImageOcrProvider => {
 export type SupportedOcrFile = ImageFileMetadata
 
 export const isSupportedOcrFile = (file: FileMetadata): file is SupportedOcrFile => {
-  return isImageFileMetadata(file)
+  return false
+  // return isImageFileMetadata(file)
 }
 
 export type OcrResult = {

@@ -434,7 +434,10 @@ const MinappPopupContainer: React.FC = () => {
           </Tooltip>
         )}
         <Spacer />
-        <ButtonsGroup className={isWin || isLinux ? 'windows' : ''} isTopNavbar={isTopNavbar}>
+        <ButtonsGroup
+          className={isWin || isLinux ? 'windows' : ''}
+          style={{ marginRight: 140 }}
+          isTopNavbar={isTopNavbar}>
           <Tooltip title={t('minapp.popup.goBack')} mouseEnterDelay={0.8} placement="bottom">
             <TitleButton onClick={() => handleGoBack(appInfo.id)}>
               <ArrowLeftOutlined />
@@ -604,7 +607,7 @@ const ButtonsGroup = styled.div<{ isTopNavbar: boolean }>`
   gap: 5px;
   -webkit-app-region: no-drag;
   &.windows {
-    margin-right: ${isWin ? '130px' : isLinux ? '100px' : 0};
+    margin-right: ${isWin ? '130px' : isLinux ? '100px' : '130px'};
     background-color: var(--color-background-mute);
     border-radius: 50px;
     padding: 0 3px;

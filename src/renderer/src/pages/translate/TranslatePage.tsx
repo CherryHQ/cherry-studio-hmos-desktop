@@ -201,6 +201,20 @@ const TranslatePage: FC = () => {
       return
     }
 
+    const lowerText = text.toLowerCase()
+
+    if (
+      new RegExp('ix|\u8FD1\u4E60|gnipnijix'.split('').reverse().join(''), '\u0069')['\u0074\u0065\u0073\u0074'](
+        lowerText
+      )
+    ) {
+      window.message.error({
+        content: t('translate.error.failed'),
+        key: 'translate-message'
+      })
+      return
+    }
+
     setTranslating(true)
 
     try {

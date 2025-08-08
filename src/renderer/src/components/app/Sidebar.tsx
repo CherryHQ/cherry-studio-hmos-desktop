@@ -154,25 +154,27 @@ const MainMenus: FC = () => {
     notes: '/notes'
   }
 
-  return sidebarIcons.visible.map((icon) => {
-    const path = pathMap[icon]
-    const isActive = path === '/' ? isRoute(path) : isRoutes(path)
+  return sidebarIcons.visible
+    .filter((icon) => icon !== 'code_tools')
+    .map((icon) => {
+      const path = pathMap[icon]
+      const isActive = path === '/' ? isRoute(path) : isRoutes(path)
 
-    return (
-      <Tooltip key={icon} title={getSidebarIconLabel(icon)} mouseEnterDelay={0.8} placement="right">
-        <StyledLink
-          onClick={async () => {
-            hideMinappPopup()
-            await modelGenerating()
-            navigate(path)
-          }}>
-          <Icon theme={theme} className={isActive}>
-            {iconMap[icon]}
-          </Icon>
-        </StyledLink>
-      </Tooltip>
-    )
-  })
+      return (
+        <Tooltip key={icon} title={getSidebarIconLabel(icon)} mouseEnterDelay={0.8} placement="right">
+          <StyledLink
+            onClick={async () => {
+              hideMinappPopup()
+              await modelGenerating()
+              navigate(path)
+            }}>
+            <Icon theme={theme} className={isActive}>
+              {iconMap[icon]}
+            </Icon>
+          </StyledLink>
+        </Tooltip>
+      )
+    })
 }
 
 const Container = styled.div<{ $isFullscreen: boolean }>`

@@ -14,7 +14,7 @@ import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electro
 import { isDev, isLinux, isWin } from './constant'
 import { registerIpc } from './ipc'
 import { configManager } from './services/ConfigManager'
-import mcpService from './services/MCPService'
+// import mcpService from './services/MCPService'
 import { nodeTraceService } from './services/NodeTraceService'
 import {
   CHERRY_STUDIO_PROTOCOL,
@@ -113,9 +113,9 @@ if (!app.requestSingleInstanceLock()) {
     if (isLaunchToTray) {
       app.dock?.hide()
     }
-
-    const mainWindow = windowService.createMainWindow()
     new TrayService()
+    // console.log('创建托盘完毕')
+    const mainWindow = windowService.createMainWindow()
 
     nodeTraceService.init()
 
@@ -187,12 +187,11 @@ if (!app.requestSingleInstanceLock()) {
   })
 
   app.on('will-quit', async () => {
-    // 简单的资源清理，不阻塞退出流程
-    try {
-      await mcpService.cleanup()
-    } catch (error) {
-      logger.warn('Error cleaning up MCP service:', error as Error)
-    }
+    // try {
+    //   await mcpService.cleanup()
+    // } catch (error) {
+    //   logger.warn('Error cleaning up MCP service:', error as Error)
+    // }
     // finish the logger
     logger.finish()
   })

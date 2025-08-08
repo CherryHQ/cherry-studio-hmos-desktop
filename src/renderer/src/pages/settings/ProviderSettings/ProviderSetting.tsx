@@ -210,6 +210,10 @@ const ProviderSetting: FC<Props> = ({ providerId }) => {
     if (apiHost.endsWith('#')) {
       return apiHost.replace('#', '')
     }
+    if (provider.id == 'hmos') {
+      // return apiHost
+      return formatApiHost(apiHost) + 'chat/completions'
+    }
     if (provider.type === 'openai') {
       return formatApiHost(apiHost) + 'chat/completions'
     }
@@ -299,8 +303,8 @@ const ProviderSetting: FC<Props> = ({ providerId }) => {
               onChange={(e) => setLocalApiKey(e.target.value)}
               spellCheck={false}
               autoFocus={provider.enabled && provider.apiKey === '' && !isProviderSupportAuth(provider)}
-              disabled={provider.id === 'copilot'}
-              suffix={renderStatusIndicator()}
+              disabled={['copilot', 'hmos'].includes(provider.id)}
+              prefix={renderStatusIndicator()}
             />
             <Button
               type={isApiKeyConnectable ? 'primary' : 'default'}

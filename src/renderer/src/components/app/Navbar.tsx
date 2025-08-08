@@ -17,7 +17,7 @@ export const Navbar: FC<Props> = ({ children, ...props }) => {
   }
 
   return (
-    <NavbarContainer {...props} style={{ backgroundColor }}>
+    <NavbarContainer {...props} style={{ backgroundColor, paddingRight: 140 }}>
       {children}
     </NavbarContainer>
   )
@@ -101,7 +101,7 @@ const NavbarMainContainer = styled.div<{ $isFullscreen: boolean }>`
   padding: 0 ${isMac ? '20px' : 0};
   font-weight: bold;
   color: var(--color-text-1);
-  padding-right: ${({ $isFullscreen }) => ($isFullscreen ? '12px' : isWin ? '140px' : isLinux ? '120px' : '12px')};
+  padding-right: 140px;
 `
 
 const NavbarHeaderContent = styled.div`

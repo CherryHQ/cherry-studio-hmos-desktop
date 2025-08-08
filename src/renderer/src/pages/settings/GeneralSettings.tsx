@@ -35,9 +35,9 @@ const GeneralSettings: FC = () => {
     proxyBypassRules: storeProxyBypassRules,
     setLaunch,
     setTray,
-    launchOnBoot,
-    launchToTray,
-    trayOnClose,
+    // launchOnBoot,
+    // launchToTray,
+    // trayOnClose,
     tray,
     proxyMode: storeProxyMode,
     enableDataCollection,
@@ -68,9 +68,9 @@ const GeneralSettings: FC = () => {
     }
   }
 
-  const updateLaunchOnBoot = (isLaunchOnBoot: boolean) => {
-    setLaunch(isLaunchOnBoot)
-  }
+  // const updateLaunchOnBoot = (isLaunchOnBoot: boolean) => {
+  //   setLaunch(isLaunchOnBoot)
+  // }
 
   const updateLaunchToTray = (isLaunchToTray: boolean) => {
     setLaunch(undefined, isLaunchToTray)
@@ -302,7 +302,7 @@ const GeneralSettings: FC = () => {
           <Switch checked={notificationSettings.knowledge} onChange={(v) => handleNotificationChange('knowledge', v)} />
         </SettingRow>
       </SettingGroup>
-      <SettingGroup theme={theme}>
+      {/* <SettingGroup theme={theme}>
         <SettingTitle>{t('settings.launch.title')}</SettingTitle>
         <SettingDivider />
         <SettingRow>
@@ -314,8 +314,8 @@ const GeneralSettings: FC = () => {
           <SettingRowTitle>{t('settings.launch.totray')}</SettingRowTitle>
           <Switch checked={launchToTray} onChange={(checked) => updateLaunchToTray(checked)} />
         </SettingRow>
-      </SettingGroup>
-      <SettingGroup theme={theme}>
+      </SettingGroup> */}
+      {/* <SettingGroup theme={theme}>
         <SettingTitle>{t('settings.tray.title')}</SettingTitle>
         <SettingDivider />
         <SettingRow>
@@ -327,7 +327,7 @@ const GeneralSettings: FC = () => {
           <SettingRowTitle>{t('settings.tray.onclose')}</SettingRowTitle>
           <Switch checked={trayOnClose} onChange={(checked) => updateTrayOnClose(checked)} />
         </SettingRow>
-      </SettingGroup>
+      </SettingGroup> */}
       <SettingGroup theme={theme}>
         <SettingTitle>{t('settings.privacy.title')}</SettingTitle>
         <SettingDivider />

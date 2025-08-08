@@ -320,31 +320,46 @@ export const qwen38bModel: Model = {
   group: 'Qwen'
 }
 
+const siliconModels = [
+  {
+    id: 'deepseek-ai/DeepSeek-V3.1',
+    name: 'deepseek-ai/DeepSeek-V3.1',
+    provider: 'silicon',
+    group: 'deepseek-ai'
+  },
+  {
+    id: 'Qwen/Qwen2.5-7B-Instruct',
+    provider: 'silicon',
+    name: 'Qwen2.5-7B-Instruct',
+    group: 'Qwen'
+  }
+]
+
 export const SYSTEM_MODELS: Record<SystemProviderId | 'defaultModel', Model[]> = {
   defaultModel: [
     // Default assistant model
-    glm45FlashModel,
+    siliconModels[0],
     // Default topic naming model
-    qwen38bModel,
+    siliconModels[1],
     // Default translation model
-    glm45FlashModel,
+    siliconModels[0],
     // Default quick assistant model
-    glm45FlashModel
+    siliconModels[0]
   ],
-  cherryin: [
-    {
-      id: 'glm-4.5-flash',
-      name: 'GLM-4.5-Flash',
-      provider: 'cherryin',
-      group: 'GLM-4.5'
-    },
-    {
-      id: 'Qwen/Qwen3-8B',
-      name: 'Qwen3-8B',
-      provider: 'cherryin',
-      group: 'Qwen'
-    }
-  ],
+  // cherryin: [
+  //   {
+  //     id: 'glm-4.5-flash',
+  //     name: 'GLM-4.5-Flash',
+  //     provider: 'cherryin',
+  //     group: 'GLM-4.5'
+  //   },
+  //   {
+  //     id: 'Qwen/Qwen3-8B',
+  //     name: 'Qwen3-8B',
+  //     provider: 'cherryin',
+  //     group: 'Qwen'
+  //   }
+  // ],
   vertexai: [],
   '302ai': [
     {
@@ -589,8 +604,8 @@ export const SYSTEM_MODELS: Record<SystemProviderId | 'defaultModel', Model[]> =
       group: 'deepseek-ai'
     },
     {
-      id: 'deepseek-ai/DeepSeek-V3',
-      name: 'deepseek-ai/DeepSeek-V3',
+      id: 'deepseek-ai/DeepSeek-V3.1',
+      name: 'deepseek-ai/DeepSeek-V3.1',
       provider: 'silicon',
       group: 'deepseek-ai'
     },
@@ -2090,7 +2105,8 @@ export const SYSTEM_MODELS: Record<SystemProviderId | 'defaultModel', Model[]> =
       provider: 'poe',
       group: 'poe'
     }
-  ]
+  ],
+  hmos: []
 }
 
 // Vision models

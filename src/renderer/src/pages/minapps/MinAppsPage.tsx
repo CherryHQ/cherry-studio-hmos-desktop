@@ -38,7 +38,7 @@ const AppsPage: FC = () => {
   return (
     <Container onContextMenu={handleContextMenu}>
       <Navbar>
-        <NavbarMain>
+        <NavbarMain style={{ paddingRight: 0 }}>
           {t('minapp.title')}
           <Input
             placeholder={t('common.search')}

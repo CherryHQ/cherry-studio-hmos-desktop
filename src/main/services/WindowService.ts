@@ -83,6 +83,11 @@ export class WindowService {
       }
     })
 
+    if (process.platform == 'ohos') {
+      //目前判断是否是鸿蒙
+      this.mainWindow.setWindowButtonVisibility(true)
+    }
+
     this.setupMainWindow(this.mainWindow, mainWindowState)
 
     //preload miniWindow to resolve series of issues about miniWindow in Mac
@@ -248,7 +253,7 @@ export class WindowService {
 
   private setupWebContentsHandlers(mainWindow: BrowserWindow) {
     mainWindow.webContents.on('will-navigate', (event, url) => {
-      if (url.includes('localhost:5173')) {
+      if (url.includes('localhost:517')) {
         return
       }
 

@@ -1,6 +1,6 @@
 import CodeEditor, { CodeEditorHandles } from '@renderer/components/CodeEditor'
 import { CopyIcon, FilePngIcon } from '@renderer/components/Icons'
-import { isLinux, isMac, isWin } from '@renderer/config/constant'
+import { isMac } from '@renderer/config/constant'
 import { useTemporaryValue } from '@renderer/hooks/useTemporaryValue'
 import { classNames } from '@renderer/utils'
 import { extractHtmlTitle, getFileNameFromHtmlTitle } from '@renderer/utils/formats'
@@ -323,7 +323,7 @@ const HeaderRight = styled.div<{ $isFullscreen?: boolean }>`
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  padding-right: ${({ $isFullscreen }) => ($isFullscreen ? (isWin ? '136px' : isLinux ? '120px' : '12px') : '12px')};
+  padding-right: ${({ $isFullscreen }) => ($isFullscreen ? '140px' : '12px')};
 `
 
 const TitleText = styled(Typography.Text)`

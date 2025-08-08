@@ -1,5 +1,6 @@
 import { TopView } from '@renderer/components/TopView'
 import { useTheme } from '@renderer/context/ThemeProvider'
+import { useRuntime } from '@renderer/hooks/useRuntime'
 import { ThemeMode } from '@renderer/types'
 import { runAsyncFunction } from '@renderer/utils'
 import { Button, Modal } from 'antd'
@@ -34,6 +35,7 @@ const PopupContainer: React.FC<Props> = ({ title, showDeclineButton = true, reso
   const [privacyUrl, setPrivacyUrl] = useState<string>('')
   const { theme } = useTheme()
   const { i18n } = useTranslation()
+  const { resourcesPath } = useRuntime()
 
   const getTitle = () => {
     if (title) return title
@@ -63,13 +65,12 @@ const PopupContainer: React.FC<Props> = ({ title, showDeclineButton = true, reso
 
   useEffect(() => {
     runAsyncFunction(async () => {
-      const { appPath } = await window.api.getAppInfo()
       const isChinese = i18n.language.startsWith('zh')
       const htmlFile = isChinese ? 'privacy-zh.html' : 'privacy-en.html'
-      const url = `file://${appPath}/resources/cherry-studio/${htmlFile}?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`
+      const url = `file://${resourcesPath}/cherry-studio/${htmlFile}?theme=${theme === ThemeMode.dark ? 'dark' : 'light'}`
       setPrivacyUrl(url)
     })
-  }, [theme, i18n.language])
+  }, [theme, i18n.language, resourcesPath])
 
   PrivacyPopup.hide = () => setOpen(false)
 

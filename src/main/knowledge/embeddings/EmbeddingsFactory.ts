@@ -3,6 +3,8 @@ import { OllamaEmbeddings } from '@cherrystudio/embedjs-ollama'
 import { OpenAiEmbeddings } from '@cherrystudio/embedjs-openai'
 import { AzureOpenAiEmbeddings } from '@cherrystudio/embedjs-openai/src/azure-openai-embeddings'
 import { ApiClient } from '@types'
+import { net } from 'electron'
+import { Fetch } from 'openai/internal/builtin-types'
 
 import { VoyageEmbeddings } from './VoyageEmbeddings'
 
@@ -53,7 +55,7 @@ export default class EmbeddingsFactory {
       apiKey,
       dimensions,
       batchSize,
-      configuration: { baseURL }
+      configuration: { baseURL, fetch: net.fetch as Fetch }
     })
   }
 }

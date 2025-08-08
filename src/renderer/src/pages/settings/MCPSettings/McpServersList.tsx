@@ -5,7 +5,7 @@ import { Sortable, useDndReorder } from '@renderer/components/dnd'
 import { EditIcon, RefreshIcon } from '@renderer/components/Icons'
 import Scrollbar from '@renderer/components/Scrollbar'
 import { useMCPServers } from '@renderer/hooks/useMCPServers'
-import { MCPServer } from '@renderer/types'
+import { MCPServer, McpServerTypeSchema } from '@renderer/types'
 import { formatMcpError } from '@renderer/utils/error'
 import { matchKeywordsInString } from '@renderer/utils/match'
 import { Button, Dropdown, Empty } from 'antd'
@@ -19,7 +19,6 @@ import { SettingTitle } from '..'
 import AddMcpServerModal from './AddMcpServerModal'
 import BuiltinMCPServerList from './BuiltinMCPServerList'
 import EditMcpJsonPopup from './EditMcpJsonPopup'
-import InstallNpxUv from './InstallNpxUv'
 import McpMarketList from './McpMarketList'
 import McpServerCard from './McpServerCard'
 import SyncServersPopup from './SyncServersPopup'
@@ -108,6 +107,7 @@ const McpServersList: FC = () => {
       id: nanoid(),
       name: t('settings.mcp.newServer'),
       description: '',
+      type: McpServerTypeSchema.parse('sse'),
       baseUrl: '',
       command: '',
       args: [],
@@ -230,7 +230,6 @@ const McpServersList: FC = () => {
           />
         </SettingTitle>
         <ButtonGroup>
-          <InstallNpxUv mini />
           <Button icon={<EditIcon size={14} />} type="default" shape="round" onClick={() => EditMcpJsonPopup.show()}>
             {t('common.edit')}
           </Button>

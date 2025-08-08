@@ -16,7 +16,6 @@ import {
   Package,
   PictureInPicture2,
   Settings2,
-  TextCursorInput,
   Zap
 } from 'lucide-react'
 import { FC } from 'react'
@@ -133,12 +132,12 @@ const SettingsPage: FC = () => {
               {t('settings.quickAssistant.title')}
             </MenuItem>
           </MenuItemLink>
-          <MenuItemLink to="/settings/selectionAssistant">
+          {/* <MenuItemLink to="/settings/selectionAssistant">
             <MenuItem className={isRoute('/settings/selectionAssistant')}>
               <TextCursorInput size={18} />
               {t('selection.name')}
             </MenuItem>
-          </MenuItemLink>
+          </MenuItemLink> */}
           <Divider />
           <MenuItemLink to="/settings/about">
             <MenuItem className={isRoute('/settings/about')}>
