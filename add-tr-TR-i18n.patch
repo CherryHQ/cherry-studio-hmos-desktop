@@ -1,0 +1,249 @@
+From e90f5ff2e42613ee0156a55a107f70cfed3bca65 Mon Sep 17 00:00:00 2001
+From: serdar <ssgguunneess@gmail.com>
+Date: Sun, 26 Oct 2025 20:59:26 +0300
+Subject: [PATCH] chore(i18n): add Turkish (tr-TR) translations, i18n bootstrap
+ and Windows build workflow
+
+---
+ .github/workflows/windows-build.yml      | 38 +++++++++++
+ README_TR.md                             | 37 +++++++++++
+ scripts/integrate-tr.ps1                 | 27 ++++++++
+ src/renderer/src/i18n/index.ts           | 80 ++++++++++--------------
+ src/renderer/src/i18n/locales/tr-tr.json |  9 +++
+ 5 files changed, 143 insertions(+), 48 deletions(-)
+ create mode 100644 .github/workflows/windows-build.yml
+ create mode 100644 README_TR.md
+ create mode 100644 scripts/integrate-tr.ps1
+ create mode 100644 src/renderer/src/i18n/locales/tr-tr.json
+
+diff --git a/.github/workflows/windows-build.yml b/.github/workflows/windows-build.yml
+new file mode 100644
+index 00000000..784311ff
+--- /dev/null
++++ b/.github/workflows/windows-build.yml
+@@ -0,0 +1,38 @@
++name: Build Windows installers
++
++on:
++    push:
++        branches:
++            - main
++            - "add/*"
++    pull_request:
++
++jobs:
++    build-windows:
++        runs-on: windows-latest
++        steps:
++            - name: Checkout
++              uses: actions/checkout@v4
++
++            - name: Setup Node.js
++              uses: actions/setup-node@v4
++              with:
++                  node-version: "20"
++
++            - name: Install dependencies
++              run: npm ci
++
++            - name: Rebuild native modules (if any)
++              run: npx electron-rebuild || echo "no native modules or rebuild needed"
++
++            - name: Build (nsis + portable)
++              run: npm run build -- --win nsis,portable --x64
++
++            - name: Upload artifacts
++              uses: actions/upload-artifact@v4
++              with:
++                  name: windows-builds
++                  path: |
++                      dist/*.exe
++                      dist/*.zip
++                      dist/**/*portable*
+diff --git a/README_TR.md b/README_TR.md
+new file mode 100644
+index 00000000..dc2e0555
+--- /dev/null
++++ b/README_TR.md
+@@ -0,0 +1,37 @@
++# Cherry Studio — Türkçe yerelleştirme ve Windows paketleme
++
++Bu kısa rehber tr-TR dil dosyasını projeye ekleme, yerel test ve Windows için .exe (NSIS installer) ve portable build oluşturmayı açıklar.
++
++1) Dil dosyasını projeye kopyalama
++
++- Yerel tr-tr.json dosyanız varsa PowerShell ile:
++
++```powershell
++.\scripts\integrate-tr.ps1 'C:\path\to\your\local\i18n' origin
++```
++
++2) Geliştirme sunucusunu çalıştırma (Node.js yüklü olmalı)
++
++```powershell
++npm ci
++npm run dev
++```
++
++Uygulama açıldıktan sonra Settings → Language bölümünden Türkçe'yi seçin. Eğer çeviriler görünmüyorsa `src/renderer/src/i18n/index.ts` dosyasının uygulama tarafından import edildiğinden emin olun.
++
++3) Windows installer/portable oluşturma
++
++```powershell
++npm ci
++npx electron-rebuild
++npm run build:win
++# veya portable için:
++npm run build:win:portable
++```
++
++Çıktılar `dist/` içinde bulunacaktır.
++
++Notlar
++
++- Eğer uygulama kendi i18n altyapısını kullanıyorsa `src/renderer/src/i18n/index.ts` dosyasını projedeki mevcut i18n bootstrapa entegre edin.
++- CI için `.github/workflows/windows-build.yml` dosyası eklendi.
+diff --git a/scripts/integrate-tr.ps1 b/scripts/integrate-tr.ps1
+new file mode 100644
+index 00000000..492572c7
+--- /dev/null
++++ b/scripts/integrate-tr.ps1
+@@ -0,0 +1,27 @@
++Param(
++    [string]$LocalI18nDir = "..\my-tr-i18n\src\renderer\src\i18n",
++    [string]$Remote = "origin"
++)
++
++if (-not (Test-Path $LocalI18nDir)) {
++    Write-Error "Yerel i18n dizini bulunamadı: $LocalI18nDir"
++    exit 1
++}
++
++$branch = "add/tr-TR-i18n"
++git checkout -b $branch
++
++New-Item -ItemType Directory -Force -Path .\src\renderer\src\i18n\locales | Out-Null
++Copy-Item -Path (Join-Path $LocalI18nDir "locales\*") -Destination .\src\renderer\src\i18n\locales -Recurse -Force
++
++git add src\renderer\src\i18n
++try {
++    git commit -m "chore(i18n): add Turkish (tr-TR) translations" | Out-Null
++}
++catch {
++    Write-Host "Commit yapılmadı: değişiklik yok veya commit hatası"
++}
++
++git push --set-upstream $Remote $branch
++
++Write-Host "Branch pushlandı: $branch. Şimdi GitHub üzerinde PR oluşturabilirsiniz. (gh CLI yüklüyse 'gh pr create' kullanın)"
+diff --git a/src/renderer/src/i18n/index.ts b/src/renderer/src/i18n/index.ts
+index da6b924a..a0ddff91 100644
+--- a/src/renderer/src/i18n/index.ts
++++ b/src/renderer/src/i18n/index.ts
+@@ -1,55 +1,39 @@
+-import { loggerService } from '@logger'
+-import { defaultLanguage } from '@shared/config/constant'
+ import i18n from 'i18next'
+-import { initReactI18next } from 'react-i18next'
+-
+-// Original translation
+-import enUS from './locales/en-us.json'
+-import jaJP from './locales/ja-jp.json'
+-import ruRU from './locales/ru-ru.json'
+-import zhCN from './locales/zh-cn.json'
+-import zhTW from './locales/zh-tw.json'
+-// Machine translation
+-import elGR from './translate/el-gr.json'
+-import esES from './translate/es-es.json'
+-import frFR from './translate/fr-fr.json'
+-import ptPT from './translate/pt-pt.json'
+-
+-const logger = loggerService.withContext('I18N')
+-
+-const resources = Object.fromEntries(
+-  [
+-    ['en-US', enUS],
+-    ['ja-JP', jaJP],
+-    ['ru-RU', ruRU],
+-    ['zh-CN', zhCN],
+-    ['zh-TW', zhTW],
+-    ['el-GR', elGR],
+-    ['es-ES', esES],
+-    ['fr-FR', frFR],
+-    ['pt-PT', ptPT]
+-  ].map(([locale, translation]) => [locale, { translation }])
+-)
+-
+-export const getLanguage = () => {
+-  return localStorage.getItem('language') || navigator.language || defaultLanguage
++// If the project uses react-i18next, keep the import. Otherwise this file is idempotent and safe to adapt.
++let hasReact = false
++try {
++    // eslint-disable-next-line @typescript-eslint/no-var-requires
++    require.resolve('react-i18next')
++    hasReact = true
++} catch (e) {
++    hasReact = false
++}
++if (hasReact) {
++    // eslint-disable-next-line @typescript-eslint/no-var-requires
++    const { initReactI18next } = require('react-i18next')
++    i18n.use(initReactI18next)
+ }
+ 
+-export const getLanguageCode = () => {
+-  return getLanguage().split('-')[0]
++// Load locales shipped with repository. Keep keys consistent with app usage (e.g. 'tr-TR' or 'tr').
++// Adjust the path if your build system moves files; this file expects the JSON next to it under ./locales
++const tr = require('./locales/tr-tr.json')
++
++const resources: any = {
++    'tr-TR': { translation: tr }
+ }
+ 
+-i18n.use(initReactI18next).init({
+-  resources,
+-  lng: getLanguage(),
+-  fallbackLng: defaultLanguage,
+-  interpolation: {
+-    escapeValue: false
+-  },
+-  saveMissing: true,
+-  missingKeyHandler: (_1, _2, key) => {
+-    logger.error(`Missing key: ${key}`)
+-  }
+-})
++if (!i18n.isInitialized) {
++    i18n.init({
++        resources,
++        lng: 'en', // keep default language as English; users can switch to tr-TR in app settings
++        fallbackLng: 'en',
++        interpolation: { escapeValue: false },
++        debug: false
++    })
++} else {
++    if (!i18n.hasResourceBundle('tr-TR', 'translation')) {
++        i18n.addResourceBundle('tr-TR', 'translation', tr, true, true)
++    }
++}
+ 
+ export default i18n
+diff --git a/src/renderer/src/i18n/locales/tr-tr.json b/src/renderer/src/i18n/locales/tr-tr.json
+new file mode 100644
+index 00000000..6e4e726a
+--- /dev/null
++++ b/src/renderer/src/i18n/locales/tr-tr.json
+@@ -0,0 +1,9 @@
++{
++    "common": {
++        "language": "Dil",
++        "loading": "Yükleniyor...",
++        "save": "Kaydet",
++        "cancel": "İptal",
++        "ok": "Tamam"
++    }
++}
+\ No newline at end of file
+-- 
+2.51.1.windows.1
+

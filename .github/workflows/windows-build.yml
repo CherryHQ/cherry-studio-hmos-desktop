@@ -1,0 +1,55 @@
+name: Build Windows installers
+
+on:
+    push:
+        branches:
+            - main
+            - "add/*"
+    pull_request:
+
+jobs:
+    build-windows:
+        runs-on: windows-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Cache node modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      **/node_modules
+                      .yarn/cache
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Rebuild native modules (if any)
+              run: |
+                  if (Test-Path node_modules) { npx electron-rebuild } else { echo "no node_modules found, skipping electron-rebuild" }
+
+            - name: Build (nsis + portable)
+              # Use electron-builder directly for determinism; falls back to npm script if needed
+              run: |
+                  if (Get-Command npx -ErrorAction SilentlyContinue) {
+                      npx electron-builder --win nsis,portable --x64
+                  } else {
+                      npm run build -- --win nsis,portable --x64
+                  }
+
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: windows-builds
+                  path: |
+                      dist/*.exe
+                      dist/*.zip
+                      dist/**/*portable*
