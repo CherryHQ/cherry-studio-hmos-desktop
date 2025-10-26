@@ -1,0 +1,497 @@
+ — amaç şu: Cherry Studio’ya Türkçe dil dosyanı entegre ettikten sonra, orijinal uygulamanın tüm donanım özelliklerini (.) koruyarak Windows için .exe (installer) ve taşınabilir (portable) sürümler oluşturmak ve bunları test edilebilir hâle getirmek. Aşağıda sırasıyla uygulanabilir adımlar, gerekli paketleme ayarları, test kontrol listesi, CI (GitHub Actions) örneği ve önemli notlar/karşılaşılabilecek problemler yer alıyor. İstersen bu adımları senin için doğrudan repo üzerinde değişiklik yapmak üzere bir PR haline getirebilirim — bunun için izin/uzantı veya repo bilgisi yeterli.
+uygulama açık kaynak dosyasını indirip clonla önce sonra gereken dil ekleme işlemini yap
+uygulama altyapısı CPU ya uygun olsun API KEYLER kullanılacak ama uygulamanın orjınal yapısı korunsun CHERRY STUDİO asistan chatbot uygulaması
+Özet akış (kısa)
+1. Lokal olarak repo klonla / fork’dan çek / branch aç.
+2. tr-tr.json’u doğru dizine kopyala ve i18n index dosyasına kaydet.
+3. Bağımlılıkları kur, varsa native modülleri electron sürümüne göre rebuild et.
+4. electron-builder (veya proje kullandığı build aracı) ile Windows installer (.exe/NSIS) ve portable build oluştur.
+5. Ortamda donanım özelliklerini test et (VM + gerçek donanım).
+6. (Opsiyonel) GitHub Actions ile otomatik Windows build ve artifact üret.
+
+Detaylı adımlar
+
+A. Hazırlık ve entegrasyon
+1) Fork / clone / branch
+- Fork edersen upstream’i korumuş olursun. Lokal:
+  - git clone git@github.com:<kullanici>/cherry-studio.git
+  - cd cherry-studio
+  - git checkout -b add/tr-TR-i18n
+
+2) Tr dosyasını kopyala ve index.ts’e kaydet
+- Hedef: src/renderer/src/i18n/locales/tr-tr.json
+- index.ts (veya proje i18n init dosyası) içinde 'tr-TR' kaydının olduğundan emin ol. (Bunu zaten yaptığını belirtmiştin; eğer değilse daha önce verdiğim örnek kodu ekle.)
+
+B. Paketleme altyapısını doğrula
+1) Projede hangi paketleyici kullanılıyor kontrol et:
+- package.json içindeki scripts ve build bölümüne bak:
+  - electron-builder (yaygın): "build": "electron-builder"
+  - electron-forge veya electron-packager de olabilir.
+- Eğer electron-builder yoksa kurman gerekebilir:
+  - npm install --save-dev electron-builder
+2) Gerekliyse electron-rebuild:
+  - npm install --save-dev electron-rebuild
+  - npx electron-rebuild  (native modüller varsa, build öncesi çalıştır)
+
+C. package.json için tipik electron-builder yapılandırma (örnek)
+Aşağıdaki snippet’i package.json içine ekleyebilirsin (ya da var olan build bölümünü bu tarz hedefleri içerecek şekilde güncelle).
+
+```json name=package.json
+{
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "dev": "your-existing-dev-script",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --x64",
+    "build:win:portable": "electron-builder --win portable --x64",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.yourdomain.cherrystudio",
+    "productName": "Cherry Studio",
+    "files": [
+      "dist/**",
+      "build/**",
+      "src/**",
+      "package.json",
+      "src/renderer/src/i18n/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "src/renderer/src/i18n/locales/",
+        "to": "locales/",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
+```
+
+Notlar:
+- files/extraResources kısmında i18n dosyalarının paketlendiğinden emin ol. Projendeki build pipeline farklıysa (renderer build sonrası) paths’i uyarlaman gerekebilir.
+- portable hedefi electron-builder ile Windows için portable installer üretir (tek exe/portable). Aynı komutla hem nsis hem portable hedefleri isteyebilirsin.
+
+D. Yerel Windows build komutları
+- Önce bağımlılıkları kur:
+  - npm ci  (veya yarn install)
+- Native modüller varsa rebuild:
+  - npx electron-rebuild
+- Ardından build:
+  - npm run build:win    # NSIS + defaults (veya npm run dist)
+  - npm run build:win:portable  # portable
+- Ortaya çıkan dosyalar genellikle dist/ veya release/ içinde olacak. (.exe installer, portable .exe veya zip)
+
+E. Donanım özelliklerini koruyarak test etme (kontrol listesi)
+1) GPU / grafik:
+- Uygulamayı çalıştırırken GPU hızlandırması gerektiği yerde düzgün çalışıyor mu? (GPU kullanımına bağlıysa Electron ayarlarına bak: app.commandLine.appendSwitch('ignore-gpu-blacklist') gibi)
+2) Mikrofon / Kamera:
+- MediaDevices.getUserMedia çağrıları izin ve çalışıyor mu?
+- Windows’ta Privacy Settings altında uygulamanın mikrofon/kamera erişimi görünüyor mu?
+3) Seri / USB / HID:
+- Eğer uygulama node-serialport, usb gibi native modüller kullanıyorsa:
+  - electron-rebuild ile rebuild edildi mi?
+  - App installer localde driver gerektiriyorsa kullanıcılara nasıl kurulu olacağı dokümante et.
+4) Dosya sistem izinleri:
+- Installer ile uygulama yeterli izinle (Program Files altında yazma gereksinimi vs.) çalışıyor mu?
+- Eğer uygulaman veri dizinine yazıyorsa uygun kullanıcı dizinine yönlendir.
+5) CLI / auto-update:
+- Eğer auto-update özelliği varsa, kod imzası ve update server ayarlarını kontrol et.
+
+F. Windows build ortamı (yerel veya CI)
+- Windows .exe oluşturmak için en güvenilir yol Windows makinesi:
+  - electron-builder Windows üzerinde en problemsiz çalışır.
+- Linux üzerinde Windows build yapmak istersen Wine kullanımı mümkün ama daha karmaşık (reklam: GH Actions ile windows-latest en kolaydır).
+
+G. GitHub Actions: Windows build örneği
+Aşağıdaki workflow Windows üzerinde build yapar ve artifacts (installer/portable) çıkartır. Bunu repo'ya .github/workflows/windows-build.yml olarak ekleyebilirsin.
+
+```yaml name=.github/workflows/windows-build.yml
+name: Build Windows installers
+
+on:
+  push:
+    branches:
+      - main
+      - 'add/*'
+  pull_request:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules (if any)
+        run: npx electron-rebuild || echo "no native modules or rebuild failed"
+
+      - name: Build (nsis + portable)
+        run: npm run build -- --win nsis,portable --x64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/**/*portable*
+```
+
+Notlar:
+- Eğer kod imzalama sertifikası (.pfx) kullanacaksan GH Secrets içine koyup actions içinde kullanabilirsin (SECURE).
+- build komutu projeye göre küçük fark gösterebilir; package.json script’lerini uyarlamayı unutma.
+
+H. İmza (Code signing) ve Güvenlik
+- Windows kullanıcıları için kod imzalanmamış .exe uyarılar verebilir. Resmi dağıtım için bir EV/Code Signing sertifikası alıp electron-builder config içinde sertifika kullanmalısın.
+- GitHub Actions ile signing yapmak için sertifika verilerini secrets içinde sakla ve workflow’da kullan.
+
+I. Taşınabilir (portable) sürüm notları
+- Portable genelde tek .exe veya zip içinde çalıştırılabilecek paket verir. Ancak:
+  - Portable sürüm, registry ayarları veya sistem driver’ları gerektiren özellikler için sınırlı olabilir.
+  - Eğer uygulama özel driver kuruyorsa bu kullanıcının makinada kurulu olmalı.
+
+J. Test önerileri
+1) Sanal makine üzerinde ilk test: Windows 10/11 VM’ye installer kur, uygulamayı aç, dil seçiminden Türkçe’yi seç.
+2) Gerçek donanım testleri: mikrofon, kamera, USB cihazları bağla ve test et.
+3) Hata kaydı: açılış log’larını incele (Electron main/renderer console), paketleme sonrası missing resource hatalarını kontrol et (i18n dosyalarının paket içinde olması, asar/unpack vs).
+
+K. Olası problemler ve çözümleri
+- Eksik i18n dosyaları: build sonrası uygulamada çeviri görünmüyorsa packaged resources paths yanlış olabilir. extraResources veya files config’u güncelle.
+- Native modül hataları (node-gyp): npx electron-rebuild veya uygun node-gyp/toolchain kurulumu gerekebilir.
+- Yavaş başlangıç veya GPU sorunları: Electron komut satırı ayarlarıyla GPU kullanımı ayarlanabilir.
+- Kod imzası eksikse Windows Defender/SmartScreen uyarısı; yayımlama öncesi imzalama önerilir.
+
+Harika — hedefin Cherry Studio açık kaynağını indirip hazırladığın Türkçe dil dosyasını projeye düzgün şekilde entegre edip uygulamayı derlemek / paketlemek. Aşağıda takip edebileceğin açık, uygulanabilir adımlar, kullanılacak komutlar ve iki yardımcı dosya (i18n index.ts için örnek değişiklik ve entegrasyon betiği) veriyorum. İstersen bu adımları senin yerinde otomatikleştirebilirim — bunun için GitHub repo URL’si / fork yetkin veya gh/SSH erişimin gerektiğini söyle; yoksa yönergeleri takip ederek kendin yapabilirsin.
+
+Özet akış
+1. Cherry Studio’yu fork/clone et.
+2. Yeni bir branch oluştur.
+3. Hazırladığın i18n dizinini (tr-tr.json) doğru dizine kopyala.
+4. src/renderer/src/i18n/index.ts dosyasını tr-TR’yi register edecek şekilde güncelle.
+5. Bağımlılıkları yükle, uygulamayı çalıştırıp test et.
+6. Build / package (platforma göre).
+7. Commit, push, PR oluştur.
+
+Aşağıda adım adım komutlar + iki örnek dosya (index.ts değişikliği örneği ve entegrasyon betiği).
+
+1) Clone / fork (tercih: önce kendi GitHub hesabına fork, sonra clone)
+- Fork: https://github.com/CherryHQ/cherry-studio -> kendi hesabına fork et.
+- Lokal klon:
+  - git clone git@github.com:<kullanici>/cherry-studio.git
+  - cd cherry-studio
+  - git checkout -b add/tr-TR-i18n
+
+2) Dosyaları kopyala
+- Lokal olarak hazırladığın i18n klasörü varsa (ör. ../my-tr-i18n) aşağıdaki komutla kopyala:
+  - cp -r ../my-tr-i18n/src/renderer/src/i18n ./src/renderer/src/
+  (Not: senin dosya yapına göre yolu ayarla — önemli hedef: proje içinde src/renderer/src/i18n/locales/tr-tr.json olacak.)
+
+3) index.ts’i güncelle (örnek)
+Aşağıdaki örnek index.ts, projenin mevcut i18n yapısına göre ufak değişiklik gerekebilir; amaç tr-TR çevirisini import edip resources listesine eklemek. Projendeki gerçek i18n kütüphanesi (i18next, react-intl vb.) farklıysa bunu uyarlaman gerekir.
+
+```typescript name=src/renderer/src/i18n/index.ts
+// Örnek: tr-TR ekleme. Projedeki orijinal dosyayla entegre edip gerekli ayarları koru.
+import i18n from 'i18next'
+import enUS from './locales/en-us.json'
+import trTR from './locales/tr-tr.json'
+
+// Eğer proje farklı namespace kullanıyorsa veya resources farklı yapıda ise
+// aşağıdaki resources objesini proje biçimine göre düzenle.
+i18n.init({
+  lng: 'en-US',
+  fallbackLng: 'en-US',
+  resources: {
+    'en-US': { translation: enUS },
+    'tr-TR': { translation: trTR }
+  },
+  interpolation: { escapeValue: false }
+})
+
+export default i18n
+```
+
+Notlar:
+- Projede zaten bir index.ts varsa üzerindeki existing imports/initialization yapısına trTR importunu ve resources satırını ekle.
+- Bazı projelerde locale anahtarı 'en' veya 'en-US' olarak değişebilir — locale anahtarlarının uygulama içinde kullandığıyla eşleştiğinden emin ol.
+
+4) Otomatikleşmiş entegrasyon betiği (opsiyonel, lokal makinede çalıştır)
+Aşağıdaki bash betiği bir örnek: Cherry Studio’yu klonlar (senin fork’unu veya upstream’i kullan), branch açar, i18n klasörünü kopyalar, bağımlılıkları kurar, build/test için örnek komutları çalıştırır ve commit + push yapar. Betikteki yolları kendi hazırladığın dosya konumuna göre düzenle.
+
+```bash name=scripts/integrate-tr.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+# KULLANIM: ./scripts/integrate-tr.sh /path/to/local/tr-i18n <your-github-remote>
+LOCAL_I18N_DIR="$1"      # örn: ../my-tr-i18n/src/renderer/src/i18n
+REMOTE="${2:-origin}"    # git remote adı (varsayılan origin)
+
+if [ ! -d "$LOCAL_I18N_DIR" ]; then
+  echo "Hata: yerel i18n dizini bulunamadı: $LOCAL_I18N_DIR"
+  exit 1
+fi
+
+echo "Yeni branch oluşturuluyor..."
+git checkout -b add/tr-TR-i18n
+
+echo "i18n dosyaları kopyalanıyor..."
+mkdir -p src/renderer/src/i18n
+cp -r "$LOCAL_I18N_DIR/"* src/renderer/src/i18n/
+
+echo "Değişiklikler eklendi..."
+git add src/renderer/src/i18n
+git commit -m "chore(i18n): add Turkish (tr-TR) translations"
+
+echo "Push ediliyor..."
+git push --set-upstream "$REMOTE" add/tr-TR-i18n
+
+echo "Tamamlandı. Şimdi GitHub üzerinde PR oluşturabilirsin (gh cli yüklüyse otomatik oluştur):"
+if command -v gh >/dev/null 2>&1; then
+  gh pr create --title "Add Turkish (tr-TR) localization" --body "Add Turkish locale files and registration." --base main
+fi
+
+echo "Unutma: index.ts içinde tr-TR kaydı gerektiğini kontrol et. Ayrıca build/test adımlarını aşağıda çalıştır."
+```
+
+5) Bağımlılıkları yükleme ve geliştirme sunucusunu çalıştırma
+- yarn veya npm kullanılıyorsa:
+  - yarn install
+  - yarn dev  OR npm run dev
+  (Projenin package.json içindeki script isimlerini kontrol et: "dev", "start", "build" vb.)
+- Test için uygulamayı açıp Settings > Language (Dil) kısmından Türkçe’yi seç ve tüm ana ekranların çevirisinin düzgün göründüğünden emin ol.
+
+6) Build / Paketleme
+- package.json içinde hangi script varsa onu kullan:
+  - yarn build
+  - yarn dist veya yarn package veya npm run make
+- Eğer Electron-builder, electron-forge veya electron-packager kullanılıyorsa README veya package.json script’lerine bak:
+  - örnekler:
+    - yarn build && yarn dist
+    - yarn make
+  - Oluşan binary’leri test et.
+
+7) PR ve dokümantasyon
+- PR açıklamasına şunları ekle:
+  - Neler eklendi (tr-tr.json dosyaları, index.ts güncellemesi)
+  - Nasıl test edilir (adım adım)
+  - Potansiyel çeviri kısımları/inceleme istenen yerler
+- README.md / CONTRIBUTING.md içinde Türkçe destek bilgisi ve katkı rehberi ekle (zaten README_TR.md hazırlamışsın — çok iyi). PR’a README_TR.md’yi de ekleyip ana README’ye link verebilirsin.
+
+Kontrol listesi (test edin)
+- Tüm UI menülerinde ve ayarlarda çeviri gösteriliyor mu?
+- Uzun metinler UI’da taşma yapıyor mu? (buton/tooltip/alan genişlikleri)
+- Dinamik / parametrik çeviriler doğru yerleştirildi mi (ör. "You have {count} messages")?
+- Sağdan sola değil — Türkçe LTR olduğundan düzen etkilenmiyor mu?
+
+Harika — tr-tr.json dosyanı aldım. Şimdi sana doğrudan entegre edebilmen için gerekli dosyaları ve adımları hazırlıyorum: i18n kayıt dosyası (index.ts) güncellemesi, paketleme (electron-builder) yapılandırma önerisi, Windows CI/workflow ve bir entegrasyon scripti. Aşağıdaki dosyalar önerimdir — bunları repo içinde uygun yerlere ekleyip/var olanlarla birleştirerek kullanabilirsin. Ardından build komutlarını çalıştırıp .exe (installer/NSIS) ve portable sürümler oluşturabilirsin.
+
+Ne yaptım: tr-tr.json dosyanı gözden geçirip entegrasyon için gereken değişiklikleri planladım ve kullanabileceğin 4 yardımcı dosya hazırladım (i18n index modülü, package.json için build/snippet, GitHub Actions workflow ve entegrasyon scripti). Şimdi bu dosyaları gösteriyorum — bunları repo’ya uygulayıp sonra adım adım komutları çalıştır.
+
+1) i18n kayıt / bootstrap — src/renderer/src/i18n/index.ts
+```typescript name=src/renderer/src/i18n/index.ts
+// Öneri: tr-TR locale'unu uygulamaya kaydetmek için güvenli, idempotent bir init.
+// Projedeki mevcut i18n altyapısına göre uyarlaman gerekebilir (i18next, vue-i18n vb.)
+// Bu örnek i18next ile çalışacak bir örnektir.
+// Eğer proje başka bir i18n kütüphanesi kullanıyorsa benzer şekilde tr-TR kaydı ekle.
+
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next' // eğer React kullanıyorsanız
+import enUS from './locales/en-us.json'
+import trTR from './locales/tr-tr.json'
+
+const resources: any = {
+  'en-US': { translation: enUS },
+  'tr-TR': { translation: trTR }
+}
+
+// Eğer i18n daha önce init edildiyse tekrar init etmeyiz, sadece resource ekleriz.
+if (!i18n.isInitialized) {
+  i18n
+    .use(initReactI18next)
+    .init({
+      resources,
+      lng: 'en-US',
+      fallbackLng: 'en-US',
+      interpolation: { escapeValue: false },
+      debug: false
+    })
+} else {
+  // mevcut resource'lara ekle (varsa üzerine yazmaz)
+  if (!i18n.hasResourceBundle('tr-TR', 'translation')) {
+    i18n.addResourceBundle('tr-TR', 'translation', trTR, true, true)
+  }
+  if (!i18n.hasResourceBundle('en-US', 'translation')) {
+    i18n.addResourceBundle('en-US', 'translation', enUS, true, true)
+  }
+}
+
+export default i18n
+```
+
+Not: Bu dosyayı mevcut index.ts ile birebir değiştirmeden önce repo’daki i18n kullanımını kontrol et. Eğer proje Vue, Svelte veya farklı bir yapı kullanıyorsa aynı mantığı (import tr-tr.json; register locale) uygun API ile uygulamalısın.
+
+2) package.json — build ve scripts için öneri (mevcut package.json ile birleştir)
+```json name=package.json
+{
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "dev": "npm run dev:renderer & npm run dev:main", // mevcut dev script'lerinizle değiştir
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --x64",
+    "build:win:portable": "electron-builder --win portable --x64",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.yourdomain.cherrystudio",
+    "productName": "Cherry Studio",
+    "files": [
+      "dist/**",
+      "build/**",
+      "src/**",
+      "package.json",
+      "src/renderer/src/i18n/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "src/renderer/src/i18n/locales/",
+        "to": "locales/",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
+```
+Uyarı: Bu blok mevcut package.json'un tüm içeriği değil; repo’daki package.json ile bu kısımları dikkatlice birleştir. Özellikle "files" ve "extraResources" ile i18n dosyalarının paketlendiğinden emin ol.
+
+3) GitHub Actions — Windows build workflow (.github/workflows/windows-build.yml)
+```yaml name=.github/workflows/windows-build.yml
+name: Build Windows installers
+
+on:
+  push:
+    branches:
+      - main
+      - 'add/*'
+  pull_request:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild native modules (if any)
+        run: npx electron-rebuild || echo "no native modules or rebuild needed"
+
+      - name: Build (nsis + portable)
+        run: npm run build -- --win nsis,portable --x64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/**/*portable*
+```
+
+Not: Eğer projede özel imzalama veya gizli bilgiler varsa (PFX sertifikası vb.) bunları GitHub Secrets içine koyup workflow’a eklemelisin. (Code signing opsiyoneldir ama dağıtımda SmartScreen uyarılarını azaltmak için önerilir.)
+
+4) Entegrasyon scripti — scripts/integrate-tr.sh
+```bash name=scripts/integrate-tr.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Kullanım: ./scripts/integrate-tr.sh /path/to/your/tr-i18n
+LOCAL_I18N_DIR="${1:-../my-tr-i18n/src/renderer/src/i18n}"
+BRANCH="add/tr-TR-i18n"
+
+if [ ! -d "$LOCAL_I18N_DIR" ]; then
+  echo "Hata: yerel i18n dizini bulunamadı: $LOCAL_I18N_DIR"
+  exit 1
+fi
+
+echo "Yeni branch oluşturuluyor: $BRANCH"
+git checkout -b "$BRANCH"
+
+echo "i18n dosyaları kopyalanıyor..."
+mkdir -p src/renderer/src/i18n
+cp -r "$LOCAL_I18N_DIR/"* src/renderer/src/i18n/
+
+echo "index.ts'in i18n kaydı içerdiğini doğrulayın. (src/renderer/src/i18n/index.ts)"
+git add src/renderer/src/i18n
+git commit -m "chore(i18n): add Turkish (tr-TR) translations" || echo "değişiklik yok"
+
+echo "Push ediliyor..."
+git push --set-upstream origin "$BRANCH"
+echo "Branch pushlandı. GitHub üzerinde PR oluşturun veya 'gh pr create' ile otomatik oluşturun (gh CLI yüklüyse)."
+```
+
+Nasıl ilerleyeceksin (adım adım kısa):
+1. tr-tr.json dosyanı repo içindeki src/renderer/src/i18n/locales/tr-tr.json olarak yerleştir.
+2. src/renderer/src/i18n/index.ts dosyasını yukarıdaki örneğe göre düzenle (veya var olan dosyaya import + addResourceBundle satırını ekle).
+3. package.json içindeki script ve build bloğunu (veya sadece uygun build ayarlarını) mevcut package.json ile birleştir.
+4. Lokal makinede:
+   - npm ci (veya yarn)
+   - npx electron-rebuild (native modül varsa)
+   - npm run build:win  (veya npm run dist)
+   - Veya önce npm run dev ile manuel test (Settings → Language → Türkçe)
+5. Windows installer ve portable çıktıları dist/ altında oluşacaktır. Bunları bir Windows makinede/VM’de test et:
+   - Uygulamayı kurup Türkçe seçin, tüm ana ekranları kontrol edin.
+   - Mikrofon/kamera/seri/USB/GPU gereksinimleri varsa gerçek donanımda test edin.
+
+Test kontrol listesi (kısa):
+- Dil seçiminden sonra UI’da çevirilerin görünmesi
+- Uzun çeviri metinlerinde taşma/taşma kontrolü
+- Parametrik çeviriler ({{count}}, {{name}}) doğru yerlere oturuyor mu
+- Native modüller rebuild edildi mi (seri, usb, vs.)
+- Installer ile çalıştırıldığında uygulamanın izinleri/donanım erişimleri beklenen şekilde
+
+Ben ne yapabilirim bundan sonra (hızlı seçenekler):
+- İstersen bu değişiklikleri bir commit/patch/PR olarak hazırlayıp sana diff gönderebilirim — bunun için Cherry Studio repo linkini ya da kendi fork linkini ver (veya repository erişim izni). Ben PR içeriğini hazırlarım (index.ts değişiklikleri, workflow, package.json snippet).
+- Ya da istersen ben sadece index.ts içindeki tr-TR kayıt kodunu repo yapısına göre özelleştiririm; bunun için repo içindeki mevcut src/renderer/src/i18n/index.ts dosyasının içeriğini paylaş.
+- Ayrıca CI ile otomatik build istiyorsan, GitHub Actions workflow dosyasını repo'ya ekleyip test artifacts yaratabilirim (sen PR istemediğin sürece ben dosyaları repo’ya push edemem — senin onayın veya erişimin lazım).

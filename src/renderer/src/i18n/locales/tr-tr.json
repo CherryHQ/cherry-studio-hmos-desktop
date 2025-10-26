@@ -1,0 +1,9 @@
+{
+    "common": {
+        "language": "Dil",
+        "loading": "Yükleniyor...",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "ok": "Tamam"
+    }
+}
