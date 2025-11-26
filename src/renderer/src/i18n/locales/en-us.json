@@ -4194,6 +4194,13 @@
     "show_mini_window": "Quick Assistant",
     "show_window": "Show Window"
   },
+  "tutorial": {
+    "hmos-llm": {
+      "button": "Tutorial",
+      "subtitle": "Click to watch the detailed usage guide",
+      "title": "Local LLM Tutorial"
+    }
+  },
   "update": {
     "install": "Install",
     "later": "Later",

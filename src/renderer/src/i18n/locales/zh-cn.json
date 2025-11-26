@@ -4194,6 +4194,13 @@
     "show_mini_window": "快捷助手",
     "show_window": "显示窗口"
   },
+  "tutorial": {
+    "hmos-llm": {
+      "button": "使用教程",
+      "subtitle": "点击观看详细使用指南",
+      "title": "本地大语言模型使用教程"
+    }
+  },
   "update": {
     "install": "立即安装",
     "later": "稍后",

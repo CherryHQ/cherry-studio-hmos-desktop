@@ -2882,6 +2882,10 @@ export function isNotSupportTemperatureAndTopP(model: Model): boolean {
     return true
   }
 
+  if (model.provider === 'hmos') {
+    return true
+  }
+
   if (
     (isOpenAIReasoningModel(model) && !isOpenAIOpenWeightModel(model)) ||
     isOpenAIChatCompletionOnlyModel(model) ||

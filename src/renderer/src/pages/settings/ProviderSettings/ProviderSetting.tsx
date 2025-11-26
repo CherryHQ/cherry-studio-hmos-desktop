@@ -2,6 +2,7 @@ import OpenAIAlert from '@renderer/components/Alert/OpenAIAlert'
 import { LoadingIcon } from '@renderer/components/Icons'
 import { HStack } from '@renderer/components/Layout'
 import { ApiKeyListPopup } from '@renderer/components/Popups/ApiKeyListPopup'
+import VideoPopup from '@renderer/components/Popups/VideoPopup'
 import { isEmbeddingModel, isRerankModel } from '@renderer/config/models'
 import { PROVIDER_URLS } from '@renderer/config/providers'
 import { useTheme } from '@renderer/context/ThemeProvider'
@@ -20,7 +21,7 @@ import { formatErrorMessage } from '@renderer/utils/error'
 import { Button, Divider, Flex, Input, Space, Switch, Tooltip } from 'antd'
 import Link from 'antd/es/typography/Link'
 import { debounce, isEmpty } from 'lodash'
-import { Bolt, Check, Settings2, SquareArrowOutUpRight, TriangleAlert } from 'lucide-react'
+import { Bolt, Check, Play, Settings2, SquareArrowOutUpRight, TriangleAlert } from 'lucide-react'
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
@@ -142,6 +143,13 @@ const ProviderSetting: FC<Props> = ({ providerId }) => {
     })
   }
 
+  const openVideoTutorial = async () => {
+    await VideoPopup.show({
+      title: t('tutorial.hmos-llm.title'),
+      videoPath: 'cherry-studio-kb.mp4'
+    })
+  }
+
   const onCheckApi = async () => {
     // 如果存在多个密钥，直接打开管理窗口
     if (provider.apiKey.includes(',')) {
@@ -249,6 +257,16 @@ const ProviderSetting: FC<Props> = ({ providerId }) => {
       <SettingTitle>
         <Flex align="center" gap={8}>
           <ProviderName>{fancyProviderName}</ProviderName>
+          {provider.id === 'hmos' && (
+            <Button
+              type="text"
+              size="small"
+              icon={<Play size={14} />}
+              onClick={openVideoTutorial}
+              style={{ color: 'var(--color-primary)' }}>
+              {t('tutorial.hmos-llm.button', { defaultValue: '使用教程' })}
+            </Button>
+          )}
           {officialWebsite && (
             <Link target="_blank" href={providerConfig.websites.official} style={{ display: 'flex' }}>
               <Button type="text" size="small" icon={<SquareArrowOutUpRight size={14} />} />

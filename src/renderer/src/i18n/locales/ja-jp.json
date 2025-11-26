@@ -4194,6 +4194,13 @@
     "show_mini_window": "クイックアシスタント",
     "show_window": "ウィンドウを表示"
   },
+  "tutorial": {
+    "hmos-llm": {
+      "button": "使用教程",
+      "subtitle": "クリックして詳細な使用ガイドを見る",
+      "title": "ローカル大言語モデル使用ガイド"
+    }
+  },
   "update": {
     "install": "今すぐインストール",
     "later": "後で",
