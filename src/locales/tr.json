@@ -1,0 +1,52 @@
+{
+  "app": {
+    "name": "Cherry Studio",
+    "description": "Birden fazla LLM sağlayıcısını destekleyen masaüstü istemcisi"
+  },
+  "menu": {
+    "file": "Dosya",
+    "edit": "Düzenle",
+    "view": "Görünüm",
+    "settings": "Ayarlar",
+    "help": "Yardım",
+    "quit": "Çıkış"
+  },
+  "common": {
+    "ok": "Tamam",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "confirm": "Onayla",
+    "search": "Ara",
+    "loading": "Yükleniyor..."
+  },
+  "chat": {
+    "newConversation": "Yeni Sohbet",
+    "send": "Gönder",
+    "messagePlaceholder": "Mesajınızı yazın...",
+    "model": "Model",
+    "temperature": "Sıcaklık",
+    "maxTokens": "Maks token"
+  },
+  "settings": {
+    "language": "Dil",
+    "theme": "Tema",
+    "notifications": "Bildirimler",
+    "proxy": "Proxy"
+  },
+  "errors": {
+    "network": "Ağ hatası. Lütfen bağlantınızı kontrol edin.",
+    "unknown": "Bilinmeyen bir hata oluştu."
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "logout": "Çıkış Yap",
+    "apiKey": "API Anahtarı",
+    "enterApiKey": "Lütfen API anahtarınızı girin"
+  },
+  "updates": {
+    "checking": "Güncellemeler kontrol ediliyor...",
+    "available": "Yeni bir güncelleme mevcut",
+    "upToDate": "Uygulama güncel"
+  }
+}
