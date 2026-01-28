@@ -378,6 +378,10 @@ class McpService {
               throw new Error('Invalid server type')
             }
           } else if (server.command) {
+            //根据版本判断是否为鸿蒙系统，鸿蒙系统目前不支持stdio npx
+            if (process.platform == 'ohos') {
+              throw new Error('HarmonyOS does not support NPX')
+            }
             let cmd = server.command
 
             // Get login shell environment first - needed for command detection and server execution
@@ -943,7 +947,12 @@ class McpService {
   }
 
   public async getInstallInfo() {
-    const dir = path.join(os.homedir(), HOME_CHERRY_DIR, 'bin')
+    let dir = ''
+    if (process.platform == 'ohos') {
+      dir = path.join('/data/storage/el1/base/', '.cherrystudio', 'bin')
+    } else {
+      dir = path.join(os.homedir(), HOME_CHERRY_DIR, 'bin')
+    }
     const uvName = await getBinaryName('uv')
     const bunName = await getBinaryName('bun')
     const uvPath = path.join(dir, uvName)

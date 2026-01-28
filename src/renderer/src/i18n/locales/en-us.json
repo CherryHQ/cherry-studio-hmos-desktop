@@ -2819,6 +2819,7 @@
     "gpustack": "GPUStack",
     "grok": "Grok",
     "groq": "Groq",
+    "hmos": "Local AI Models",
     "huggingface": "Hugging Face",
     "hunyuan": "Tencent Hunyuan",
     "hyperbolic": "Hyperbolic",
@@ -5302,6 +5303,13 @@
     "quit": "Quit",
     "show_mini_window": "Quick Assistant",
     "show_window": "Show Window"
+  },
+  "tutorial": {
+    "hmos-llm": {
+      "button": "Tutorial",
+      "subtitle": "Click to watch the detailed usage guide",
+      "title": "Local LLM Tutorial"
+    }
   },
   "update": {
     "install": "Install",

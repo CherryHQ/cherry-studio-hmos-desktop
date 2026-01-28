@@ -1,4 +1,5 @@
 import ModelAvatar from '@renderer/components/Avatar/ModelAvatar'
+import { shouldDisableAutoFocus } from '@renderer/config/constant'
 import { useTimer } from '@renderer/hooks/useTimer'
 import type { Assistant } from '@renderer/types'
 import { Input as AntdInput } from 'antd'
@@ -27,7 +28,8 @@ const InputBar = ({
 }: InputBarProps & { ref?: React.RefObject<HTMLDivElement | null> }) => {
   const inputRef = useRef<InputRef>(null)
   const { setTimeoutTimer } = useTimer()
-  if (!loading) {
+  // Don't auto-focus on touch devices (tablets/mobile) to prevent keyboard popup
+  if (!loading && !shouldDisableAutoFocus()) {
     setTimeoutTimer('focus', () => inputRef.current?.input?.focus(), 0)
   }
   return (
@@ -37,7 +39,7 @@ const InputBar = ({
         value={text}
         placeholder={placeholder}
         variant="borderless"
-        autoFocus
+        autoFocus={!shouldDisableAutoFocus()}
         onKeyDown={handleKeyDown}
         onChange={handleChange}
         ref={inputRef}

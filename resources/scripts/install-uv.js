@@ -49,7 +49,13 @@ async function downloadUvBinary(platform, arch, version = DEFAULT_UV_VERSION, is
   }
 
   // Create output directory structure
-  const binDir = path.join(os.homedir(), '.cherrystudio', 'bin')
+  let binDir
+  //根据版本判断是否为鸿蒙系统，鸿蒙系统路径有区别
+  if (process.platform == 'ohos') {
+    binDir = path.join('/data/storage/el1/base/', '.cherrystudio', 'bin')
+  } else {
+    binDir = path.join(os.homedir(), '.cherrystudio', 'bin')
+  }
   // Ensure directories exist
   fs.mkdirSync(binDir, { recursive: true })
 

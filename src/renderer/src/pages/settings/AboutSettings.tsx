@@ -210,72 +210,11 @@ const AboutSettings: FC = () => {
               </Tag>
             </VersionWrapper>
           </Row>
-          {!isPortable && (
-            <CheckUpdateButton
-              onClick={onCheckUpdate}
-              loading={update.checking}
-              disabled={update.downloading || update.checking}>
-              {update.downloading
-                ? t('settings.about.downloading')
-                : update.available
-                  ? t('settings.about.checkUpdate.available')
-                  : t('settings.about.checkUpdate.label')}
-            </CheckUpdateButton>
-          )}
+
         </AboutHeader>
-        {!isPortable && (
-          <>
-            <SettingDivider />
-            <SettingRow>
-              <SettingRowTitle>{t('settings.general.auto_check_update.title')}</SettingRowTitle>
-              <Switch value={autoCheckUpdate} onChange={(v) => setAutoCheckUpdate(v)} />
-            </SettingRow>
-            <SettingDivider />
-            <SettingRow>
-              <SettingRowTitle>{t('settings.general.test_plan.title')}</SettingRowTitle>
-              <Tooltip title={t('settings.general.test_plan.tooltip')} trigger={['hover', 'focus']}>
-                <Switch value={testPlan} onChange={(v) => handleSetTestPlan(v)} />
-              </Tooltip>
-            </SettingRow>
-            {testPlan && (
-              <>
-                <SettingDivider />
-                <SettingRow>
-                  <SettingRowTitle>{t('settings.general.test_plan.version_options')}</SettingRowTitle>
-                  <Radio.Group
-                    size="small"
-                    buttonStyle="solid"
-                    value={getTestChannel()}
-                    onChange={(e) => handleTestChannelChange(e.target.value)}>
-                    {getAvailableTestChannels().map((option) => (
-                      <Tooltip key={option.value} title={option.tooltip}>
-                        <Radio.Button value={option.value}>{option.label}</Radio.Button>
-                      </Tooltip>
-                    ))}
-                  </Radio.Group>
-                </SettingRow>
-              </>
-            )}
-          </>
-        )}
+
       </SettingGroup>
-      {update.info && update.available && (
-        <SettingGroup theme={theme}>
-          <SettingRow>
-            <SettingRowTitle>
-              {t('settings.about.updateAvailable', { version: update.info.version })}
-              <IndicatorLight color="green" />
-            </SettingRowTitle>
-          </SettingRow>
-          <UpdateNotesWrapper className="markdown">
-            <Markdown>
-              {typeof update.info.releaseNotes === 'string'
-                ? update.info.releaseNotes.replace(/\n/g, '\n\n')
-                : update.info.releaseNotes?.map((note) => note.note).join('\n')}
-            </Markdown>
-          </UpdateNotesWrapper>
-        </SettingGroup>
-      )}
+      
       <SettingGroup theme={theme}>
         <SettingRow>
           <SettingRowTitle>

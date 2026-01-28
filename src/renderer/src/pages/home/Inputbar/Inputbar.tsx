@@ -9,6 +9,7 @@ import {
   isWebSearchModel
 } from '@renderer/config/models'
 import db from '@renderer/databases'
+import { shouldDisableAutoFocus } from '@renderer/config/constant'
 import { useAssistant } from '@renderer/hooks/useAssistant'
 import { useInputText } from '@renderer/hooks/useInputText'
 import { useMessageOperations, useTopicLoading } from '@renderer/hooks/useMessageOperations'
@@ -409,7 +410,10 @@ const InputbarInner: FC<InputbarInnerProps> = ({ assistant: initialAssistant, se
 
   useEffect(() => {
     if (!document.querySelector('.topview-fullscreen-container')) {
-      focusTextarea()
+      // Don't auto-focus on touch devices (tablets/mobile) to prevent keyboard popup
+      if (!shouldDisableAutoFocus()) {
+        focusTextarea()
+      }
     }
   }, [
     topic.id,

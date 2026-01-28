@@ -20,7 +20,7 @@ import { apiServerService } from './services/ApiServerService'
 import { appMenuService } from './services/AppMenuService'
 import { configManager } from './services/ConfigManager'
 import { lanTransferClientService } from './services/lanTransfer'
-import mcpService from './services/MCPService'
+// import mcpService from './services/MCPService'
 import { localTransferService } from './services/LocalTransferService'
 import { nodeTraceService } from './services/NodeTraceService'
 import powerMonitorService from './services/PowerMonitorService'
@@ -146,9 +146,13 @@ if (!app.requestSingleInstanceLock()) {
     if (isLaunchToTray) {
       app.dock?.hide()
     }
-
-    const mainWindow = windowService.createMainWindow()
     new TrayService()
+    // console.log('创建托盘完毕')
+    const mainWindow = windowService.createMainWindow()
+
+    // Register IPC handlers immediately after window creation to avoid race conditions
+    // where renderer tries to invoke handlers before they're registered
+    await registerIpc(mainWindow, app)
 
     // Setup macOS application menu
     appMenuService?.setupApplicationMenu()
@@ -167,7 +171,6 @@ if (!app.requestSingleInstanceLock()) {
 
     registerShortcuts(mainWindow)
 
-    await registerIpc(mainWindow, app)
     localTransferService.startDiscovery({ resetList: true })
 
     replaceDevtoolsFont(mainWindow)
@@ -266,11 +269,16 @@ if (!app.requestSingleInstanceLock()) {
       }
     }
 
+    // try {
+    //   await mcpService.cleanup()
+    // } catch (error) {
+    //   logger.warn('Error cleaning up MCP service:', error as Error)
+    // }
+
     try {
-      await mcpService.cleanup()
       await apiServerService.stop()
     } catch (error) {
-      logger.warn('Error cleaning up MCP service:', error as Error)
+      logger.warn('Error stopping API server:', error as Error)
     }
 
     // finish the logger

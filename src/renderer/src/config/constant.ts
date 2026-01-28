@@ -42,3 +42,15 @@ export const MAX_CONTEXT_COUNT = 100
 export const UNLIMITED_CONTEXT_COUNT = 100000
 
 export const MAX_COLLAPSED_CODE_HEIGHT = 350
+
+export const isTouchDevice = () => {
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    (navigator as any).msMaxTouchPoints > 0
+  )
+}
+
+export const shouldDisableAutoFocus = () => {
+  return isTouchDevice()
+}

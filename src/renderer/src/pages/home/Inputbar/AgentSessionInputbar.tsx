@@ -1,6 +1,7 @@
 import { loggerService } from '@logger'
 import type { QuickPanelTriggerInfo } from '@renderer/components/QuickPanel'
 import { QuickPanelReservedSymbol, useQuickPanel } from '@renderer/components/QuickPanel'
+import { shouldDisableAutoFocus } from '@renderer/config/constant'
 import { isGenerateImageModel, isVisionModel } from '@renderer/config/models'
 import { useSession } from '@renderer/hooks/agents/useSession'
 import { useInputText } from '@renderer/hooks/useInputText'
@@ -398,7 +399,11 @@ const AgentSessionInputbarInner: FC<InnerProps> = ({ assistant, agentId, session
       let messageText = text
       if (files.length > 0) {
         const filePaths = files.map((file) => file.path).join('\n')
-        messageText = text ? `${text}\n\nAttached files:\n${filePaths}` : `Attached files:\n${filePaths}`
+        messageText = text ? `${text}
+
+Attached files:
+${filePaths}` : `Attached files:
+${filePaths}`
       }
 
       const mainBlock = createMainTextBlock(userMessageId, messageText, {
@@ -448,7 +453,10 @@ const AgentSessionInputbarInner: FC<InnerProps> = ({ assistant, agentId, session
 
   useEffect(() => {
     if (!document.querySelector('.topview-fullscreen-container')) {
-      focusTextarea()
+      // Don't auto-focus on touch devices (tablets/mobile) to prevent keyboard popup
+      if (!shouldDisableAutoFocus()) {
+        focusTextarea()
+      }
     }
   }, [focusTextarea])
 

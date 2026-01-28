@@ -1,5 +1,4 @@
-import type { Client } from '@libsql/client'
-import { createClient } from '@libsql/client'
+// import { Client, createClient } from '@libsql/client'
 import { loggerService } from '@logger'
 import { DATA_PATH } from '@main/config'
 import Embeddings from '@main/knowledge/embedjs/embeddings/Embeddings'
@@ -48,7 +47,7 @@ export interface SearchResult {
 
 export class MemoryService {
   private static instance: MemoryService | null = null
-  private db: Client | null = null
+  private db: null = null
   private isInitialized = false
   private embeddings: Embeddings | null = null
   private config: MemoryConfig | null = null
@@ -102,10 +101,11 @@ export class MemoryService {
 
       makeSureDirExists(path.dirname(memoryDbPath))
 
-      this.db = createClient({
-        url: `file:${memoryDbPath}`,
-        intMode: 'number'
-      })
+      this.db = ''
+      // createClient({
+      //   url: `file:${memoryDbPath}`,
+      //   intMode: 'number'
+      // })
 
       // Create tables
       await this.createTables()

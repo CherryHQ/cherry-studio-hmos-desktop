@@ -50,11 +50,22 @@ export async function getBinaryName(name: string): Promise<string> {
 
 export async function getBinaryPath(name?: string): Promise<string> {
   if (!name) {
-    return path.join(os.homedir(), HOME_CHERRY_DIR, 'bin')
+    //根据版本判断是否为鸿蒙系统，鸿蒙系统路径有区别
+    if (process.platform == 'ohos') {
+      return path.join('/data/storage/el1/base/', '.cherrystudio', 'bin')
+    } else {
+      return path.join(os.homedir(), HOME_CHERRY_DIR, 'bin')
+    }
   }
 
   const binaryName = await getBinaryName(name)
-  const binariesDir = path.join(os.homedir(), HOME_CHERRY_DIR, 'bin')
+  let binariesDir
+  //根据版本判断是否为鸿蒙系统，鸿蒙系统路径有区别
+  if (process.platform == 'ohos') {
+    binariesDir = path.join('/data/storage/el1/base/', '.cherrystudio', 'bin')
+  } else {
+    binariesDir = path.join(os.homedir(), HOME_CHERRY_DIR, 'bin')
+  }
   const binariesDirExists = fs.existsSync(binariesDir)
   return binariesDirExists ? path.join(binariesDir, binaryName) : binaryName
 }

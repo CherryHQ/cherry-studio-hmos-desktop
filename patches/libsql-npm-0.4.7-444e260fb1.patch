@@ -2,16 +2,28 @@ diff --git a/index.js b/index.js
 index 4e8423491ab51a9eb9fee22182e4ea0fcc3d3d3b..2846c5d4354c130d478dc99565b3ecd6d85b7d2e 100644
 --- a/index.js
 +++ b/index.js
-@@ -19,7 +19,11 @@ function requireNative() {
-       break;
-     }
-   }
+@@ -3,23 +3,8 @@
+ const { load, currentTarget } = require("@neon-rs/load");
+ const { familySync, GLIBC } = require("detect-libc");
+
+ function requireNative() {
+-  if (process.env.LIBSQL_JS_DEV) {
+-    return load(__dirname)
+-  }
+-  let target = currentTarget();
+-  // Workaround for Bun, which reports a musl target, but really wants glibc...
+-  if (familySync() == GLIBC) {
+-    switch (target) {
+-    case "linux-x64-musl":
+-      target = "linux-x64-gnu";
+-      break;
+-    case "linux-arm64-musl":
+-      target = "linux-arm64-gnu";
+-      break;
+-    }
+-  }
 -  return require(`@libsql/${target}`);
-+  if (target === "win32-arm64-msvc") {
-+    return require(`@strongtz/win32-arm64-msvc`);
-+  } else {
-+    return require(`@libsql/${target}`);
-+  }
++  return require(`/data/storage/el1/bundle/libs/arm64/libsql.node`);
  }
- 
+
  const {

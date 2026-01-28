@@ -4,6 +4,7 @@ import { ActionIconButton } from '@renderer/components/Buttons'
 import type { QuickPanelTriggerInfo } from '@renderer/components/QuickPanel'
 import { QuickPanelReservedSymbol, QuickPanelView, useQuickPanel } from '@renderer/components/QuickPanel'
 import TranslateButton from '@renderer/components/TranslateButton'
+import { shouldDisableAutoFocus } from '@renderer/config/constant'
 import { useRuntime } from '@renderer/hooks/useRuntime'
 import { useSettings } from '@renderer/hooks/useSettings'
 import { useTimer } from '@renderer/hooks/useTimer'
@@ -669,7 +670,7 @@ export const InputbarCore: FC<InputbarCoreProps> = ({
             onFocus={handleFocus}
             onBlur={() => setInputFocus(false)}
             placeholder={isTranslating ? t('chat.input.translating') : placeholder}
-            autoFocus
+            autoFocus={!shouldDisableAutoFocus()}
             variant="borderless"
             spellCheck={enableSpellCheck}
             rows={2}

@@ -4,6 +4,7 @@ import { ErrorDetailModal } from '@renderer/components/ErrorDetailModal'
 import { LoadingIcon } from '@renderer/components/Icons'
 import { HStack } from '@renderer/components/Layout'
 import { ApiKeyListPopup } from '@renderer/components/Popups/ApiKeyListPopup'
+import VideoPopup from '@renderer/components/Popups/VideoPopup'
 import Selector from '@renderer/components/Selector'
 import { HelpTooltip } from '@renderer/components/TooltipIcons'
 import { isRerankModel } from '@renderer/config/models'
@@ -38,7 +39,7 @@ import {
 import { Button, Divider, Flex, Input, Select, Space, Switch, Tooltip } from 'antd'
 import Link from 'antd/es/typography/Link'
 import { debounce, isEmpty } from 'lodash'
-import { Bolt, Check, Settings2, SquareArrowOutUpRight, TriangleAlert } from 'lucide-react'
+import { Bolt, Check, Play, Settings2, SquareArrowOutUpRight, TriangleAlert } from 'lucide-react'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -407,11 +408,28 @@ const ProviderSetting: FC<Props> = ({ providerId }) => {
 
   const isAnthropicOAuth = () => provider.id === 'anthropic' && provider.authType === 'oauth'
 
+  const openVideoTutorial = async () => {
+    await VideoPopup.show({
+      title: t('tutorial.hmos-llm.title'),
+      videoPath: 'cherry-studio-kb.mp4'
+    })
+  }
+
   return (
     <SettingContainer theme={theme} style={{ background: 'var(--color-background)' }}>
       <SettingTitle>
         <Flex align="center" gap={8}>
           <ProviderName>{fancyProviderName}</ProviderName>
+          {provider.id === 'hmos' && (
+            <Button
+              type="text"
+              size="small"
+              icon={<Play size={14} />}
+              onClick={openVideoTutorial}
+              style={{ color: 'var(--color-primary)' }}>
+              {t('tutorial.hmos-llm.button', { defaultValue: '使用教程' })}
+            </Button>
+          )}
           {officialWebsite && (
             <Link target="_blank" href={providerConfig.websites.official} style={{ display: 'flex' }}>
               <Button type="text" size="small" icon={<SquareArrowOutUpRight size={14} />} />

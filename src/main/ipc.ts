@@ -25,16 +25,13 @@ import type {
   AgentPersistedMessage,
   FileMetadata,
   Notification,
-  OcrProvider,
   Provider,
   Shortcut,
-  SupportedOcrFile,
   ThemeMode
 } from '@types'
 import checkDiskSpace from 'check-disk-space'
 import type { ProxyConfig } from 'electron'
 import { BrowserWindow, dialog, ipcMain, session, shell, systemPreferences, webContents } from 'electron'
-import fontList from 'font-list'
 
 import { agentMessageRepository } from './services/agents/database'
 import { PluginService } from './services/agents/plugins/PluginService'
@@ -58,7 +55,7 @@ import { openTraceWindow, setTraceWindowTitle } from './services/NodeTraceServic
 import NotificationService from './services/NotificationService'
 import * as NutstoreService from './services/NutstoreService'
 import ObsidianVaultService from './services/ObsidianVaultService'
-import { ocrService } from './services/ocr/OcrService'
+// import { ocrService } from './services/ocr/OcrService'
 import { isOvmsSupported } from './services/OvmsManager'
 import powerMonitorService from './services/PowerMonitorService'
 import { proxyManager } from './services/ProxyManager'
@@ -291,13 +288,7 @@ export async function registerIpc(mainWindow: BrowserWindow, app: Electron.App) 
 
   // Get System Fonts
   ipcMain.handle(IpcChannel.App_GetSystemFonts, async () => {
-    try {
-      const fonts = await fontList.getFonts()
-      return fonts.map((font: string) => font.replace(/^"(.*)"$/, '$1')).filter((font: string) => font.length > 0)
-    } catch (error) {
-      logger.error('Failed to get system fonts:', error as Error)
       return []
-    }
   })
 
   ipcMain.handle(IpcChannel.Config_Set, (_, key: string, value: any, isNotify: boolean = false) => {
@@ -972,10 +963,10 @@ export async function registerIpc(mainWindow: BrowserWindow, app: Electron.App) 
   )
 
   // OCR
-  ipcMain.handle(IpcChannel.OCR_ocr, (_, file: SupportedOcrFile, provider: OcrProvider) =>
-    ocrService.ocr(file, provider)
-  )
-  ipcMain.handle(IpcChannel.OCR_ListProviders, () => ocrService.listProviderIds())
+  // ipcMain.handle(IpcChannel.OCR_ocr, (_, file: SupportedOcrFile, provider: OcrProvider) =>
+  //   ocrService.ocr(file, provider)
+  // )
+  // ipcMain.handle(IpcChannel.OCR_ListProviders, () => ocrService.listProviderIds())
 
   // OVMS
   ipcMain.handle(IpcChannel.Ovms_IsSupported, () => isOvmsSupported)

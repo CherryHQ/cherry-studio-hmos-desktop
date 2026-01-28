@@ -9,9 +9,8 @@ import type {
   McpHttpServerConfig,
   Options,
   PreToolUseHookInput,
-  SDKMessage
-} from '@anthropic-ai/claude-agent-sdk'
-import { query } from '@anthropic-ai/claude-agent-sdk'
+  query as queryType,
+  SDKMessage} from '@anthropic-ai/claude-agent-sdk'
 import { loggerService } from '@logger'
 import { config as apiConfigService } from '@main/apiServer/config'
 import { validateModelId } from '@main/apiServer/utils'
@@ -33,6 +32,17 @@ const logger = loggerService.withContext('ClaudeCodeService')
 const DEFAULT_AUTO_ALLOW_TOOLS = new Set(['Read', 'Glob', 'Grep'])
 const shouldAutoApproveTools = process.env.CHERRY_AUTO_ALLOW_TOOLS === '1'
 const NO_RESUME_COMMANDS = ['/clear']
+
+// Dynamic import for ESM module compatibility on OHOS
+// The claude-agent-sdk is ESM-only (.mjs) and cannot be require()'d on OHOS
+let _queryFn: typeof queryType | null = null
+async function getQueryFn(): Promise<typeof queryType> {
+  if (!_queryFn) {
+    const mod = await import('@anthropic-ai/claude-agent-sdk')
+    _queryFn = mod.query
+  }
+  return _queryFn
+}
 
 type UserInputMessage = {
   type: 'user'
@@ -443,7 +453,8 @@ class ClaudeCodeService implements AgentServiceInterface {
     const streamState = new ClaudeStreamState({ agentSessionId: sessionId })
 
     try {
-      for await (const message of query({ prompt: promptStream, options })) {
+      const queryFn = await getQueryFn()
+      for await (const message of queryFn({ prompt: promptStream, options })) {
         if (hasCompleted) break
 
         jsonOutput.push(message)

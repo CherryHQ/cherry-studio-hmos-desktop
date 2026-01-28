@@ -1,4 +1,5 @@
 import AddAssistantPopup from '@renderer/components/Popups/AddAssistantPopup'
+import TutorialTip from '@renderer/components/TutorialTip'
 import { useAssistants, useDefaultAssistant } from '@renderer/hooks/useAssistant'
 import { useNavbarPosition, useSettings } from '@renderer/hooks/useSettings'
 import { useShowTopics } from '@renderer/hooks/useStore'
@@ -135,6 +136,8 @@ const HomeTabs: FC<Props> = ({
           />
         )}
       </TabContent>
+
+      <TutorialTip />
     </Container>
   )
 }
@@ -171,6 +174,7 @@ const TabContent = styled.div`
   flex-direction: column;
   overflow-y: hidden;
   overflow-x: hidden;
+  min-height: 0;
 `
 
 const CustomTabs = styled.div`

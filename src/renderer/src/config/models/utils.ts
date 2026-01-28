@@ -55,6 +55,11 @@ export function isSupportTemperatureModel(model: Model | undefined | null, assis
     return false
   }
 
+  // HMOS provider doesn't support temperature
+  if (model.provider === 'hmos') {
+    return false
+  }
+
   // OpenAI reasoning models (except open weight) don't support temperature
   if (isOpenAIReasoningModel(model) && !isOpenAIOpenWeightModel(model)) {
     if (isGPT52SeriesModel(model) && assistant?.settings?.reasoning_effort === 'none') {
@@ -83,6 +88,11 @@ export function isSupportTemperatureModel(model: Model | undefined | null, assis
  */
 export function isSupportTopPModel(model: Model | undefined | null, assistant?: Assistant): boolean {
   if (!model) {
+    return false
+  }
+
+  // HMOS provider doesn't support top_p
+  if (model.provider === 'hmos') {
     return false
   }
 

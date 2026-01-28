@@ -95,6 +95,11 @@ export class WindowService {
       }
     })
 
+    if (process.platform == 'ohos') {
+      //目前判断是否是鸿蒙
+      this.mainWindow.setWindowButtonVisibility(true)
+    }
+
     this.setupMainWindow(this.mainWindow, mainWindowState)
 
     //preload miniWindow to resolve series of issues about miniWindow in Mac

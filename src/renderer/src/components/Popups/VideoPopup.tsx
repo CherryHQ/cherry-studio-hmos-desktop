@@ -1,192 +1,71 @@
-import { UploadOutlined } from '@ant-design/icons'
-import FileManager from '@renderer/services/FileManager'
-import { loggerService } from '@renderer/services/LoggerService'
-import type { FileMetadata } from '@renderer/types'
-import { mime2type, uuid } from '@renderer/utils'
-import { Modal, Space, Upload } from 'antd'
-import type { UploadFile } from 'antd/es/upload/interface'
+import { TopView } from '@renderer/components/TopView'
+import { useRuntime } from '@renderer/hooks/useRuntime'
+import { Modal } from 'antd'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
 
-import { TopView } from '../TopView'
+const VideoContainer = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
 
-const logger = loggerService.withContext('Video Popup')
-const { Dragger } = Upload
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+`
 
-export interface VideoUploadResult {
-  videoFile: FileMetadata
-  srtFile: FileMetadata
-}
-
-interface VideoPopupShowParams {
+interface ShowParams {
   title: string
+  videoPath: string
 }
 
-interface Props extends VideoPopupShowParams {
-  resolve: (value: VideoUploadResult | null) => void
+interface Props extends ShowParams {
+  resolve: (data: any) => void
 }
 
-type UploadType = 'video' | 'srt'
-
-interface SingleFileUploaderProps {
-  uploadType: UploadType
-  accept: string
-  title: string
-  hint: string
-  fileList: UploadFile[]
-  onUpload: (file: File) => void
-  onRemove: () => void
-}
-
-const SingleFileUploader: React.FC<SingleFileUploaderProps> = ({
-  uploadType,
-  accept,
-  title,
-  hint,
-  fileList,
-  onUpload,
-  onRemove
-}) => {
-  const { t } = useTranslation()
-  return (
-    <div>
-      <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>{title}</div>
-      <Dragger
-        name={uploadType}
-        accept={accept}
-        maxCount={1}
-        fileList={fileList}
-        customRequest={({ file }) => {
-          if (file instanceof File) {
-            onUpload(file)
-          } else {
-            logger.error('Upload failed: Invalid file format')
-          }
-        }}
-        onRemove={onRemove}>
-        <p className="ant-upload-drag-icon">
-          <UploadOutlined />
-        </p>
-        <p className="ant-upload-text">{t('knowledge.drag_file')}</p>
-        <p className="ant-upload-hint">{hint}</p>
-      </Dragger>
-    </div>
-  )
-}
-
-const VideoPopupContainer: React.FC<Props> = ({ title, resolve }) => {
+const PopupContainer: React.FC<Props> = ({ title, videoPath = 'cherry-studio-kb.mp4', resolve }) => {
   const [open, setOpen] = useState(true)
-  const [result, setResult] = useState<VideoUploadResult | null>(null)
+  const { i18n } = useTranslation()
+  const { resourcesPath } = useRuntime()
 
-  const [videoFile, setVideoFile] = useState<FileMetadata | null>(null)
-  const [srtFile, setSrtFile] = useState<FileMetadata | null>(null)
+  const handleClose = () => setOpen(false)
 
-  const [videoFileList, setVideoFileList] = useState<UploadFile[]>([])
-  const [srtFileList, setSrtFileList] = useState<UploadFile[]>([])
+  const videoUrl = `file://${resourcesPath}/video/${videoPath}`
 
-  const { t } = useTranslation()
-
-  const handleFileUpload = async (
-    file: File,
-    uploadType: UploadType,
-    setFile: (data: FileMetadata | null) => void,
-    setFileList: (list: UploadFile[]) => void
-  ) => {
-    const tempId = uuid()
-    const tempFile: UploadFile = {
-      uid: tempId,
-      name: file.name,
-      status: 'uploading'
-    }
-    setFileList([tempFile])
-
-    try {
-      const newFileMetadata: FileMetadata = {
-        id: uuid(),
-        name: file.name,
-        path: window.api.file.getPathForFile(file),
-        size: file.size,
-        ext: `.${file.name.split('.').pop()?.toLowerCase()}`,
-        count: 1,
-        origin_name: file.name,
-        type: mime2type(file.type),
-        created_at: new Date().toISOString()
-      }
-
-      const uploadedFile = await FileManager.uploadFile(newFileMetadata)
-      setFile(uploadedFile)
-
-      setFileList([{ ...tempFile, status: 'done', url: uploadedFile.path }])
-    } catch (error) {
-      logger.error(`Failed to upload ${uploadType} file: ${error}`)
-      setFileList([{ ...tempFile, status: 'error', response: '上传失败' }])
-      setFile(null)
-    }
-  }
-
-  const handleFileRemove = (
-    setFile: (data: FileMetadata | null) => void,
-    setFileList: (list: UploadFile[]) => void
-  ) => {
-    setFile(null)
-    setFileList([])
-    return true
-  }
-
-  const onOk = () => {
-    if (videoFile && srtFile) {
-      setResult({ videoFile, srtFile })
-      setOpen(false)
-    }
-  }
-
-  const onCancel = () => {
-    setResult(null)
-    setOpen(false)
-  }
-
-  const onAfterClose = () => {
-    resolve(result)
-    TopView.hide(TopViewKey)
-  }
-
-  VideoPopup.hide = onCancel
-  const isOkButtonDisabled = !videoFile || !srtFile
+  VideoPopup.hide = () => setOpen(false)
 
   return (
     <Modal
       title={title}
       open={open}
-      onOk={onOk}
-      onCancel={onCancel}
-      afterClose={onAfterClose}
+      onCancel={handleClose}
+      afterClose={() => resolve({ closed: true })}
       transitionName="animation-move-down"
       centered
-      width={600}
-      okButtonProps={{ disabled: isOkButtonDisabled }}
-      okText={t('common.confirm')}
-      cancelText={t('common.cancel')}>
-      <Space direction="vertical" style={{ width: '100%', gap: '16px' }}>
-        <SingleFileUploader
-          uploadType="video"
-          accept="video/*"
-          title={t('knowledge.videos_file')}
-          hint={t('knowledge.file_hint', { file_types: 'MP4, AVI, MKV, MOV' })}
-          fileList={videoFileList}
-          onUpload={(file) => handleFileUpload(file, 'video', setVideoFile, setVideoFileList)}
-          onRemove={() => handleFileRemove(setVideoFile, setVideoFileList)}
-        />
-
-        <SingleFileUploader
-          uploadType="srt"
-          accept=".srt"
-          title={t('knowledge.subtitle_file')}
-          hint={t('knowledge.file_hint', { file_types: 'SRT' })}
-          fileList={srtFileList}
-          onUpload={(file) => handleFileUpload(file, 'srt', setSrtFile, setSrtFileList)}
-          onRemove={() => handleFileRemove(setSrtFile, setSrtFileList)}
-        />
-      </Space>
+      closable={true}
+      maskClosable={true}
+      styles={{
+        header: { paddingLeft: 20 },
+        body: { paddingLeft: 20, paddingRight: 20 },
+        content: { maxHeight: '80vh', maxWidth: '60vw', margin: '0 auto', overflow: 'hidden' }
+      }}
+      width={1000}
+      footer={null}>
+      <VideoContainer>
+        <video controls autoPlay>
+          <source src={videoUrl} type="video/mp4" />
+          {i18n.language.startsWith('zh')
+            ? '您的浏览器不支持视频播放。'
+            : 'Your browser does not support the video tag.'}
+        </video>
+      </VideoContainer>
     </Modal>
   )
 }
@@ -198,9 +77,18 @@ export default class VideoPopup {
   static hide() {
     TopView.hide(TopViewKey)
   }
-  static show(props: VideoPopupShowParams) {
-    return new Promise<VideoUploadResult | null>((resolve) => {
-      TopView.show(<VideoPopupContainer {...props} resolve={resolve} />, TopViewKey)
+  static async show(props?: ShowParams) {
+    return new Promise<{ closed: boolean }>((resolve) => {
+      TopView.show(
+        <PopupContainer
+          {...(props || {})}
+          resolve={(v) => {
+            resolve(v)
+            TopView.hide(TopViewKey)
+          }}
+        />,
+        TopViewKey
+      )
     })
   }
 }

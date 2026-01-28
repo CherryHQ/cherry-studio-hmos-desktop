@@ -40,6 +40,7 @@ import NewAPIProviderLogo from '@renderer/assets/images/providers/newapi.png'
 import NvidiaProviderLogo from '@renderer/assets/images/providers/nvidia.png'
 import O3ProviderLogo from '@renderer/assets/images/providers/o3.png'
 import OcoolAiProviderLogo from '@renderer/assets/images/providers/ocoolai.png'
+import hmosLogo from '@renderer/assets/images/providers/ohos.png'
 import OllamaProviderLogo from '@renderer/assets/images/providers/ollama.png'
 import OpenAiProviderLogo from '@renderer/assets/images/providers/openai.png'
 import OpenRouterProviderLogo from '@renderer/assets/images/providers/openrouter.png'
@@ -99,7 +100,20 @@ export const SYSTEM_PROVIDERS_CONFIG: Record<SystemProviderId, SystemProvider> =
     anthropicApiHost: 'https://api.siliconflow.cn',
     models: SYSTEM_MODELS.silicon,
     isSystem: true,
-    enabled: false
+    enabled: true
+  },
+  hmos: {
+    id: 'hmos',
+    name: 'Harmony OS AI',
+    type: 'openai',
+    apiKey: '',
+    apiHost: 'http://localhost:11434',
+    models: [],
+    isSystem: true,
+    enabled: false,
+    apiOptions: {
+      isNotSupportArrayContent: true
+    }
   },
   aihubmix: {
     id: 'aihubmix',
@@ -717,6 +731,7 @@ export const SYSTEM_PROVIDERS: SystemProvider[] = Object.values(SYSTEM_PROVIDERS
 export const PROVIDER_LOGO_MAP: AtLeast<SystemProviderId, string> = {
   cherryin: CherryInProviderLogo,
   ph8: Ph8ProviderLogo,
+  hmos: hmosLogo,
   '302ai': Ai302ProviderLogo,
   openai: OpenAiProviderLogo,
   silicon: SiliconFlowProviderLogo,
@@ -1125,6 +1140,16 @@ export const PROVIDER_URLS: Record<SystemProviderId, ProviderUrls> = {
       apiKey: 'https://console.groq.com/keys',
       docs: 'https://console.groq.com/docs/quickstart',
       models: 'https://console.groq.com/docs/models'
+    }
+  },
+  hmos: {
+    api: {
+      url: 'http://localhost:11434'
+    },
+    websites: {
+      // official: 'https://ollama.com/',
+      // docs: 'https://github.com/ollama/ollama/tree/main/docs',
+      // models: 'https://ollama.com/library'
     }
   },
   ovms: {
