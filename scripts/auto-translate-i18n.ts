@@ -147,6 +147,7 @@ const languageMap = {
   'en-us': 'English',
   'ja-jp': 'Japanese',
   'ru-ru': 'Russian',
+  'tr-tr': 'Turkish',
   'zh-tw': 'Traditional Chinese',
   'el-gr': 'Greek',
   'es-es': 'Spanish',

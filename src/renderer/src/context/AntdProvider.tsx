@@ -10,6 +10,7 @@ import jaJP from 'antd/locale/ja_JP'
 import ptPT from 'antd/locale/pt_PT'
 import roRO from 'antd/locale/ro_RO'
 import ruRU from 'antd/locale/ru_RU'
+import trTR from 'antd/locale/tr_TR'
 import viVN from 'antd/locale/vi_VN'
 import zhCN from 'antd/locale/zh_CN'
 import zhTW from 'antd/locale/zh_TW'
@@ -133,6 +134,8 @@ function getAntdLocale(language: LanguageVarious) {
       return deDE
     case 'ru-RU':
       return ruRU
+    case 'tr-TR':
+      return trTR
     case 'ja-JP':
       return jaJP
     case 'el-GR':

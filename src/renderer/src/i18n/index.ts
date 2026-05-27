@@ -6,6 +6,7 @@ import 'dayjs/locale/ja'
 import 'dayjs/locale/pt'
 import 'dayjs/locale/ro'
 import 'dayjs/locale/ru'
+import 'dayjs/locale/tr'
 import 'dayjs/locale/vi'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/zh-tw'
@@ -18,6 +19,7 @@ import { initReactI18next } from 'react-i18next'
 
 // Original translation
 import enUS from './locales/en-us.json'
+import trTR from './locales/tr-tr.json'
 import zhCN from './locales/zh-cn.json'
 import zhTW from './locales/zh-tw.json'
 // Machine translation
@@ -38,6 +40,7 @@ const resources = Object.fromEntries(
     ['en-US', enUS],
     ['ja-JP', jaJP],
     ['ru-RU', ruRU],
+    ['tr-TR', trTR],
     ['zh-CN', zhCN],
     ['zh-TW', zhTW],
     ['de-DE', deDE],
@@ -63,6 +66,7 @@ const dayjsLocaleMap: Record<string, string> = {
   'en-US': 'en',
   'ja-JP': 'ja',
   'ru-RU': 'ru',
+  'tr-TR': 'tr',
   'zh-CN': 'zh-cn',
   'zh-TW': 'zh-tw',
   'de-DE': 'de',

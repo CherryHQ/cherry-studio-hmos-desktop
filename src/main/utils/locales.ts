@@ -1,6 +1,7 @@
 import { configManager } from '@main/services/ConfigManager'
 
 import EnUs from '../../renderer/src/i18n/locales/en-us.json'
+import TrTr from '../../renderer/src/i18n/locales/tr-tr.json'
 import ZhCn from '../../renderer/src/i18n/locales/zh-cn.json'
 import ZhTw from '../../renderer/src/i18n/locales/zh-tw.json'
 // Machine translation
@@ -17,6 +18,7 @@ import viVN from '../../renderer/src/i18n/translate/vi-vn.json'
 const locales = Object.fromEntries(
   [
     ['en-US', EnUs],
+    ['tr-TR', TrTr],
     ['zh-CN', ZhCn],
     ['zh-TW', ZhTw],
     ['ja-JP', JaJP],

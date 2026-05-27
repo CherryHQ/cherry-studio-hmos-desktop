@@ -47,6 +47,7 @@ const i18nMap: Record<LanguageVarious, typeof en> = {
   'pt-PT': pt_PT,
   'ro-RO': en, // No Romanian available, fallback to English
   'ru-RU': ru_RU,
+  'tr-TR': en, // No Turkish available, fallback to English
   'vi-VN': en // No Vietnamese available, fallback to English
 }
 
@@ -64,6 +65,7 @@ const dataSourceMap: Record<LanguageVarious, string> = {
   'pt-PT': dataPT,
   'ro-RO': dataEN, // No Romanian CLDR available, fallback to English
   'ru-RU': dataRU,
+  'tr-TR': dataEN, // No Turkish CLDR available, fallback to English
   'vi-VN': dataEN // No Vietnamese CLDR available, fallback to English
 }
 
@@ -81,6 +83,7 @@ const localeMap: Record<LanguageVarious, string> = {
   'pt-PT': 'pt',
   'ro-RO': 'en',
   'ru-RU': 'ru',
+  'tr-TR': 'en',
   'vi-VN': 'en'
 }
 
