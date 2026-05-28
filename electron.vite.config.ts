@@ -1,192 +1,125 @@
-import react from "@vitejs/plugin-react-swc";
-import { CodeInspectorPlugin } from "code-inspector-plugin";
-import { defineConfig } from "electron-vite";
-import { resolve } from "path";
-import { visualizer } from "rollup-plugin-visualizer";
+import react from '@vitejs/plugin-react-swc'
+import { CodeInspectorPlugin } from 'code-inspector-plugin'
+import { defineConfig } from 'electron-vite'
+import { resolve } from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // assert not supported by biome
 // import pkg from './package.json' assert { type: 'json' }
-import pkg from "./package.json";
-import { buildProxyBootstrapPlugin } from "./scripts/buildProxyBootstrapPlugin";
+import pkg from './package.json'
+import { buildProxyBootstrapPlugin } from './scripts/buildProxyBootstrapPlugin'
 
-const visualizerPlugin = (type: "renderer" | "main") => {
-  return process.env[`VISUALIZER_${type.toUpperCase()}`]
-    ? [visualizer({ open: true })]
-    : [];
-};
+const visualizerPlugin = (type: 'renderer' | 'main') => {
+  return process.env[`VISUALIZER_${type.toUpperCase()}`] ? [visualizer({ open: true })] : []
+}
 
-const isDev = process.env.NODE_ENV === "development";
-const isProd = process.env.NODE_ENV === "production";
+const isDev = process.env.NODE_ENV === 'development'
+const isProd = process.env.NODE_ENV === 'production'
 
 export default defineConfig({
   main: {
     plugins: [
-      ...visualizerPlugin("main"),
+      ...visualizerPlugin('main'),
       buildProxyBootstrapPlugin({
         dependencies: Object.keys(pkg.dependencies),
         isProd,
-        rootDir: __dirname,
-      }),
+        rootDir: __dirname
+      })
     ],
     resolve: {
       alias: {
-        "@main": resolve("src/main"),
-        "@types": resolve("src/renderer/src/types"),
-        "@shared": resolve("packages/shared"),
-        "@logger": resolve("src/main/services/LoggerService"),
-        "@mcp-trace/trace-core": resolve("packages/mcp-trace/trace-core"),
-        "@mcp-trace/trace-node": resolve("packages/mcp-trace/trace-node"),
-      },
+        '@main': resolve('src/main'),
+        '@types': resolve('src/renderer/src/types'),
+        '@shared': resolve('packages/shared'),
+        '@logger': resolve('src/main/services/LoggerService'),
+        '@mcp-trace/trace-core': resolve('packages/mcp-trace/trace-core'),
+        '@mcp-trace/trace-node': resolve('packages/mcp-trace/trace-node')
+      }
     },
     build: {
       rollupOptions: {
-        external: [
-          "bufferutil",
-          "utf-8-validate",
-          "electron",
-          ...Object.keys(pkg.dependencies),
-        ],
+        external: ['bufferutil', 'utf-8-validate', 'electron', ...Object.keys(pkg.dependencies)],
         output: {
           manualChunks: undefined, // 彻底禁用代码分割 - 返回 null 强制单文件打包
-          inlineDynamicImports: true, // 内联所有动态导入，这是关键配置
+          inlineDynamicImports: true // 内联所有动态导入，这是关键配置
         },
         onwarn(warning, warn) {
-          if (warning.code === "COMMONJS_VARIABLE_IN_ESM") return;
-          warn(warning);
-        },
+          if (warning.code === 'COMMONJS_VARIABLE_IN_ESM') return
+          warn(warning)
+        }
       },
-      sourcemap: isDev,
+      sourcemap: isDev
     },
-    esbuild: isProd ? { legalComments: "none" } : {},
+    esbuild: isProd ? { legalComments: 'none' } : {},
     optimizeDeps: {
-      noDiscovery: isDev,
-    },
+      noDiscovery: isDev
+    }
   },
   preload: {
     plugins: [
       react({
-        tsDecorators: true,
-      }),
+        tsDecorators: true
+      })
     ],
     resolve: {
       alias: {
-        "@shared": resolve("packages/shared"),
-        "@mcp-trace/trace-core": resolve("packages/mcp-trace/trace-core"),
-      },
+        '@shared': resolve('packages/shared'),
+        '@mcp-trace/trace-core': resolve('packages/mcp-trace/trace-core')
+      }
     },
     build: {
-      sourcemap: isDev,
-    },
+      sourcemap: isDev
+    }
   },
   renderer: {
     plugins: [
-      (async () => (await import("@tailwindcss/vite")).default())(),
+      (async () => (await import('@tailwindcss/vite')).default())(),
       react({
-        tsDecorators: true,
+        tsDecorators: true
       }),
-      ...(isDev ? [CodeInspectorPlugin({ bundler: "vite" })] : []), // 只在开发环境下启用 CodeInspectorPlugin
-      ...visualizerPlugin("renderer"),
+      ...(isDev ? [CodeInspectorPlugin({ bundler: 'vite' })] : []), // 只在开发环境下启用 CodeInspectorPlugin
+      ...visualizerPlugin('renderer')
     ],
     resolve: {
       alias: {
-        "@renderer": resolve("src/renderer/src"),
-        "@shared": resolve("packages/shared"),
-        "@types": resolve("src/renderer/src/types"),
-        "@logger": resolve("src/renderer/src/services/LoggerService"),
-        "@mcp-trace/trace-core": resolve("packages/mcp-trace/trace-core"),
-        "@mcp-trace/trace-web": resolve("packages/mcp-trace/trace-web"),
-        "@cherrystudio/ai-core/provider": resolve(
-          "packages/aiCore/src/core/providers",
-        ),
-        "@cherrystudio/ai-core/built-in/plugins": resolve(
-          "packages/aiCore/src/core/plugins/built-in",
-        ),
-        "@cherrystudio/ai-core": resolve("packages/aiCore/src"),
-        "@cherrystudio/extension-table-plus": resolve(
-          "packages/extension-table-plus/src",
-        ),
-        "@cherrystudio/ai-sdk-provider": resolve(
-          "packages/ai-sdk-provider/src",
-        ),
-      },
+        '@renderer': resolve('src/renderer/src'),
+        '@shared': resolve('packages/shared'),
+        '@types': resolve('src/renderer/src/types'),
+        '@logger': resolve('src/renderer/src/services/LoggerService'),
+        '@mcp-trace/trace-core': resolve('packages/mcp-trace/trace-core'),
+        '@mcp-trace/trace-web': resolve('packages/mcp-trace/trace-web'),
+        '@cherrystudio/ai-core/provider': resolve('packages/aiCore/src/core/providers'),
+        '@cherrystudio/ai-core/built-in/plugins': resolve('packages/aiCore/src/core/plugins/built-in'),
+        '@cherrystudio/ai-core': resolve('packages/aiCore/src'),
+        '@cherrystudio/extension-table-plus': resolve('packages/extension-table-plus/src'),
+        '@cherrystudio/ai-sdk-provider': resolve('packages/ai-sdk-provider/src')
+      }
     },
     optimizeDeps: {
-      exclude: ["pyodide"],
+      exclude: ['pyodide'],
       esbuildOptions: {
-        target: "esnext", // for dev
-      },
+        target: 'esnext' // for dev
+      }
     },
     worker: {
-      format: "es",
+      format: 'es'
     },
     build: {
-      target: "esnext", // for build
+      target: 'esnext', // for build
       rollupOptions: {
         input: {
-          index: resolve(__dirname, "src/renderer/index.html"),
-          miniWindow: resolve(__dirname, "src/renderer/miniWindow.html"),
-          selectionToolbar: resolve(
-            __dirname,
-            "src/renderer/selectionToolbar.html",
-          ),
-          selectionAction: resolve(
-            __dirname,
-            "src/renderer/selectionAction.html",
-          ),
-          traceWindow: resolve(__dirname, "src/renderer/traceWindow.html"),
-        },
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (
-              id.includes("react") ||
-              id.includes("react-dom") ||
-              id.includes("react-router")
-            ) {
-              return "vendor-react";
-            }
-            if (
-              id.includes("antd") ||
-              id.includes("@ant-design") ||
-              id.includes("rc-")
-            ) {
-              return "vendor-antd";
-            }
-            if (id.includes("@codemirror") || id.includes("codemirror")) {
-              return "vendor-codemirror";
-            }
-            if (id.includes("@tiptap") || id.includes("prosemirror")) {
-              return "vendor-tiptap";
-            }
-            if (id.includes("monaco-editor")) {
-              return "vendor-monaco";
-            }
-            if (id.includes("i18next") || id.includes("react-i18next")) {
-              return "vendor-i18n";
-            }
-            if (
-              id.includes("@redux") ||
-              id.includes("redux") ||
-              id.includes("redux-persist")
-            ) {
-              return "vendor-redux";
-            }
-            if (
-              id.includes("ai") ||
-              id.includes("@ai-sdk") ||
-              id.includes("@anthropic") ||
-              id.includes("openai")
-            ) {
-              return "vendor-ai";
-            }
-            return "vendor-misc";
-          }
+          index: resolve(__dirname, 'src/renderer/index.html'),
+          miniWindow: resolve(__dirname, 'src/renderer/miniWindow.html'),
+          selectionToolbar: resolve(__dirname, 'src/renderer/selectionToolbar.html'),
+          selectionAction: resolve(__dirname, 'src/renderer/selectionAction.html'),
+          traceWindow: resolve(__dirname, 'src/renderer/traceWindow.html')
         },
         onwarn(warning, warn) {
-          if (warning.code === "COMMONJS_VARIABLE_IN_ESM") return;
-          warn(warning);
-        },
-      },
+          if (warning.code === 'COMMONJS_VARIABLE_IN_ESM') return
+          warn(warning)
+        }
+      }
     },
-    esbuild: isProd ? { legalComments: "none" } : {},
-  },
-});
+    esbuild: isProd ? { legalComments: 'none' } : {}
+  }
+})
