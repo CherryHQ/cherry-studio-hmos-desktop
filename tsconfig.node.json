@@ -9,15 +9,13 @@
     "packages/shared/**/*",
     "scripts",
     "packages/mcp-trace/**/*",
-    "src/renderer/src/services/traceApi.ts"  ],
+    "src/renderer/src/services/traceApi.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo/tsconfig.node.tsbuildinfo",
-    "types": [
-      "electron-vite/node",
-      "vitest/globals"
-    ],
+    "types": ["electron-vite/node", "vitest/globals"],
     "baseUrl": ".",
     "paths": {
       "@logger": ["src/main/services/LoggerService"],
